@@ -1,2 +1,9 @@
+# Ignore Intellij IDEA settings
 .idea
 
+# Ignore TextMATE properties
+.tm_properties
+
+# Ignore Gradle and build
+.gradle
+build
