@@ -9,3 +9,9 @@ repositories {
 dependencies {
   testCompile "junit:junit:4.10"
 }
+
+task generateExe(type: Exec) {
+  commandLine './jar2exe.sh'
+}
+
+build.dependsOn generateExe
