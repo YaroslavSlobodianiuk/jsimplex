@@ -1,3 +1,8 @@
+plugins {
+  id 'java'
+  id 'com.github.johnrengelman.shadow' version '1.2.3'
+}
+
 apply plugin: "java"
 apply plugin: "eclipse"
 apply plugin: "idea"
@@ -8,10 +13,18 @@ repositories {
 
 dependencies {
   testCompile "junit:junit:4.10"
+  compile "commons-cli:commons-cli:1.2"
+}
+
+jar {
+  manifest {
+    attributes 'Main-Class': 'Main'
+  }
 }
 
 task generateExe(type: Exec) {
   commandLine './jar2exe.sh'
 }
 
+build.dependsOn shadowJar
 build.dependsOn generateExe

@@ -1,6 +1,13 @@
 import java.io.File;
-import java.io.IOException;
 import java.util.Scanner;
+import java.io.IOException;
+import java.io.PrintWriter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.CommandLine;
 
 public class Main {
 
@@ -57,11 +64,12 @@ public class Main {
         simplex_table[resRow][resCol] = 1 / simplex_table[resRow][resCol];
     }
 
-    public static void solve(int rows, int cols, double[][] simplex_table) {
+    public static String solve(int rows, int cols, double[][] simplex_table) {
         int resCol, resRow;
         int [] rows_names = new int[rows];
         double [] solution = new double[rows];
         boolean solved = false;
+		String sln = "";
 
         for (int j = 0; j < rows; ++j)
             rows_names[j] = cols + j + 1;
@@ -69,8 +77,8 @@ public class Main {
         while (!solved) {
             resCol = find_resCol(rows, cols, simplex_table);
             if (resCol == -1) {
-                System.out.print("Objective function is unlimited\n");
-                return;
+                // System.out.print("Objective function is unlimited\n");
+				return "Objective function is unlimited\n";
             } else if (resCol == 0) {
                 solved = true;
             } else {
@@ -83,54 +91,74 @@ public class Main {
         for (int i = 1; i <= cols; ++i) {
             int j = 0;
             for (; j < rows && rows_names[j] != i; ++j);
-            System.out.print("x");
-            System.out.print(i);
-            System.out.print(" = ");
+			sln += "x" + i + " = ";
             if (j == rows) {
-                System.out.println(0);
+				sln += "0\n";
             }
             else {
-                System.out.println(simplex_table[j][0]);
+				sln += simplex_table[j][0] + "\n";
             }
         }
-        System.out.print("F(x) = ");
-        System.out.print(simplex_table[rows][0]);
+		sln += "F(x) = " + simplex_table[rows][0];
+		return sln;
     }
+	
+	public static String perform(String inputFileName) {
+		try {
+			Scanner scanner = new Scanner(new File(inputFileName));
+		   	int rows, cols;
 
-    public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(new File("test1.txt"));
-        int rows, cols;
+	       	cols = scanner.nextInt();
+	       	rows = scanner.nextInt();
 
-        cols = scanner.nextInt();
-        rows = scanner.nextInt();
+	       	double [][] simplex_table = new double[rows + 1][cols + 1];
 
-        double [][] simplex_table = new double[rows + 1][cols + 1];
+	       	simplex_table[rows][0] = 0;
+	       	for (int i = 1; i <= cols; ++i)
+	    	   simplex_table[rows][i] = -scanner.nextDouble();
+	       	for (int i = 0; i < rows; ++i)
+	    	   for (int j = 1; j <= cols; ++j)
+	    		   simplex_table[i][j] = scanner.nextDouble();
+	       	for (int i = 0; i < rows; ++i)
+	        	simplex_table[i][0] = scanner.nextDouble();
 
-        simplex_table[rows][0] = 0;
-        for (int i = 1; i <= cols; ++i)
-            simplex_table[rows][i] = -scanner.nextDouble();
-        for (int i = 0; i < rows; ++i)
-            for (int j = 1; j <= cols; ++j)
-                simplex_table[i][j] = scanner.nextDouble();
-        for (int i = 0; i < rows; ++i)
-            simplex_table[i][0] = scanner.nextDouble();
+	       	return solve(rows, cols, simplex_table);
+		} catch (IOException e) {
+			return "File not found: " + inputFileName;
+		}
+	}
 
-        solve(rows, cols, simplex_table);
+    public static void main(String[] args) throws Exception {
+		// Разбор CLI
+		CommandLineParser parser = new GnuParser();
+		Options options = new Options();
+		options.addOption( OptionBuilder.withLongOpt("input")
+										.hasArg()
+										.withDescription("input file")
+										.create("i") );
+		options.addOption( OptionBuilder.withLongOpt("output")
+										.hasArg()
+										.withDescription("output file")
+										.create("o") );
+		
+		CommandLine line = parser.parse(options, args);
+		
+		// Имя входного файла
+		String inputFileName;
+		if (line.hasOption("input"))
+			inputFileName = line.getOptionValue("input");
+		else
+			inputFileName = "test.txt";
+		
+		String output = perform(inputFileName);
+      
+	  	// Вывод
+		if (line.hasOption("output")) {
+			try( PrintWriter out = new PrintWriter(line.getOptionValue("output")) ) {
+				out.println(output);
+			}
+		} else {
+			System.out.println(output);
+		}
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
