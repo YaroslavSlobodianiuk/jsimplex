@@ -2,7 +2,6 @@ import java.io.File;
 import java.util.Scanner;
 import java.io.IOException;
 import java.io.PrintWriter;
-import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.GnuParser;
