@@ -23,8 +23,13 @@ jar {
 }
 
 task generateExe(type: Exec) {
-  commandLine './jar2exe.sh'
+  commandLine './bin/jar2exe.sh'
 }
 
-build.dependsOn shadowJar
+task cleanUp(type: Exec) {
+  commandLine './bin/cleanup.sh'
+}
+
+build.dependsOn cleanUp
 build.dependsOn generateExe
+cleanUp.dependsOn shadowJar

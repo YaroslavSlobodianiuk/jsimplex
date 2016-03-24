@@ -7,6 +7,6 @@ int main(int argc, char *argv[]) {
 	for (int i = 0; i < argc; i++)
 		args.append(argv[i]).append(" ");
 	
-    system(("java -jar kbes-slp-all.jar " + args).c_str());
+    system(("java -jar kbes-slp.jar " + args).c_str());
     return 0;
 }
