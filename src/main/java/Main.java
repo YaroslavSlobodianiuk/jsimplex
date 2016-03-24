@@ -26,14 +26,13 @@ public class Main {
 		
 		CommandLine line = parser.parse(options, args);
 		
-		// Имя входного файла
-		String inputFileName;
-		if (line.hasOption("input"))
-			inputFileName = line.getOptionValue("input");
-		else
-			inputFileName = "test.txt";
+		String output;
 		
-		String output = perform(inputFileName);
+		// Имя входного файла
+		if (line.hasOption("input"))
+			output = perform(line.getOptionValue("input"));
+		else
+			output = "Error: No input file specified.";
       
 	  	// Вывод
 		if (line.hasOption("output")) {
