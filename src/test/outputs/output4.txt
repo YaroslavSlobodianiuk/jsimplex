@@ -1,0 +1,10 @@
+Problem:
+
+F(x) = 1.0 * x1 + 1.0 * x2 --> max
+1.0 * x1 - 1.0 * x2 <= 7.0
+2.0 * x1 - 0.5 * x2 <= 15.0
+x_i >= 0, i = 1 to 2
+
+Solution:
+
+Objective function is unlimited

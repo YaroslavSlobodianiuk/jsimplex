@@ -1,4 +1,5 @@
 import java.io.File;
+import java.lang.Integer;
 import java.util.Scanner;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -63,18 +64,49 @@ public class Main {
 	       	for (int i = 0; i < rows; ++i)
 	        	simplex_table[i][0] = scanner.nextDouble();
 
-	       	return solve(rows, cols, simplex_table);
+	       	return problem(rows, cols, simplex_table) + solve(rows, cols, simplex_table);
 		} catch (IOException e) {
 			return "File not found: " + inputFileName;
 		}
 	}
-	
+
+    private static String problem(int rows, int cols, double[][] simplex_table) {
+        String _problem = "Problem:\n\nF(x) = " + Double.toString(-simplex_table[rows][1]) + " * x1";
+        for (int i = 2; i <= cols; ++i) {
+            if (Math.signum(-simplex_table[rows][i]) < 0) {
+                _problem += " - ";
+            }
+            else {
+                _problem += " + ";
+            }
+            _problem += Double.toString(Math.abs(simplex_table[rows][i])) + " * x" + Integer.toString(i);
+        }
+        _problem += " --> max\n";
+        for (int i = 0; i < rows; ++i) {
+            _problem += Double.toString(simplex_table[i][1]) + " * x1";
+            for (int j = 2; j <= cols; ++j) {
+                if (Math.signum(simplex_table[i][j]) < 0) {
+                    _problem += " - ";
+                }
+                else {
+                    _problem += " + ";
+                }
+                _problem += Double.toString(Math.abs(simplex_table[i][j])) + " * x" + Integer.toString(j);
+            }
+            _problem += " <= " + Double.toString(simplex_table[i][0]) + '\n';
+        }
+        _problem += "x_i >= 0, i = 1 to " + Integer.toString(cols) + "\n";
+        _problem += "\nSolution:\n\n";
+
+        return _problem;
+    }
+
     private static String solve(int rows, int cols, double[][] simplex_table) {
         int resCol, resRow;
         int [] rows_names = new int[rows];
         double [] solution = new double[rows];
         boolean solved = false;
-		String sln = "";
+		String answer = "";
 
         for (int j = 0; j < rows; ++j)
             rows_names[j] = cols + j + 1;
@@ -95,16 +127,16 @@ public class Main {
         for (int i = 1; i <= cols; ++i) {
             int j = 0;
             for (; j < rows && rows_names[j] != i; ++j);
-			sln += "x" + i + " = ";
+			answer += "x" + i + " = ";
             if (j == rows) {
-				sln += "0\n";
+				answer += "0\n";
             }
             else {
-				sln += simplex_table[j][0] + "\n";
+				answer += simplex_table[j][0] + "\n";
             }
         }
-		sln += "F(x) = " + simplex_table[rows][0];
-		return sln;
+		answer += "max{ F(x) } = " + simplex_table[rows][0] + '\n';
+		return answer;
     }
 	
     private static boolean checkLimitation(int col, int rows, final double [][] simplex_table) {
