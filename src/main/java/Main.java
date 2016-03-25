@@ -26,13 +26,15 @@ public class Main {
 
 		CommandLine line = parser.parse(options, args);
 
-		String output;
+		String input, output;
 
 		// Имя входного файла
 		if (line.hasOption("input"))
-			output = perform(line.getOptionValue("input"));
+            input = line.getOptionValue("input");
 		else
-			output = "Error: No input file specified.";
+			input = null;
+
+        output = perform(input);
 
 	  	// Вывод
 		if (line.hasOption("output")) {
@@ -46,22 +48,30 @@ public class Main {
 
 	public static String perform(String inputFileName) {
 		try {
-			Scanner scanner = new Scanner(new File(inputFileName));
-		   	int rows, cols;
+            int rows, cols;
+            double [][] simplex_table;
 
-	       	cols = scanner.nextInt();
-	       	rows = scanner.nextInt();
+            if (inputFileName == null) {
+                simplex_table = commandLineInput();
+                cols = simplex_table[0].length - 1;
+                rows = simplex_table.length - 1;
+            } else {
+                Scanner scanner = new Scanner(new File(inputFileName));
 
-	       	double [][] simplex_table = new double[rows + 1][cols + 1];
+    	       	cols = scanner.nextInt();
+    	       	rows = scanner.nextInt();
 
-	       	simplex_table[rows][0] = 0;
-	       	for (int i = 1; i <= cols; ++i)
-	    	   simplex_table[rows][i] = -scanner.nextDouble();
-	       	for (int i = 0; i < rows; ++i)
-	    	   for (int j = 1; j <= cols; ++j)
-	    		   simplex_table[i][j] = scanner.nextDouble();
-	       	for (int i = 0; i < rows; ++i)
-	        	simplex_table[i][0] = scanner.nextDouble();
+    	       	simplex_table = new double[rows + 1][cols + 1];
+
+    	       	simplex_table[rows][0] = 0;
+    	       	for (int i = 1; i <= cols; ++i)
+    	    	   simplex_table[rows][i] = -scanner.nextDouble();
+    	       	for (int i = 0; i < rows; ++i)
+    	    	   for (int j = 1; j <= cols; ++j)
+    	    		   simplex_table[i][j] = scanner.nextDouble();
+    	       	for (int i = 0; i < rows; ++i)
+    	        	simplex_table[i][0] = scanner.nextDouble();
+            }
 
 	       	return problem(rows, cols, simplex_table) + solve(rows, cols, simplex_table);
 		} catch (IOException e) {
@@ -189,6 +199,44 @@ public class Main {
                 simplex_table[i][resCol] /= -simplex_table[resRow][resCol];
 
         simplex_table[resRow][resCol] = 1 / simplex_table[resRow][resCol];
+    }
+
+    private static double[][] commandLineInput() {
+
+        String input;
+        Scanner keyboard = new Scanner(System.in);
+
+        System.out.print("Number of variables: ");
+        int cols = keyboard.nextInt();
+
+        System.out.print("Number of limitations: ");
+        int rows = keyboard.nextInt();
+
+        double [][] simplex_table = new double[rows + 1][cols + 1];
+
+        simplex_table[rows][0] = 0;
+        System.out.println("\nCOST FUNCTION");
+        for (int i = 1; i <= cols; ++i) {
+            System.out.print("  Multiplier #" + i + ": ");
+            simplex_table[rows][i] = -keyboard.nextDouble();
+        }
+        System.out.println("\nLIMITATIONS: MULTIPLIERS");
+        for (int i = 0; i < rows; ++i) {
+            System.out.println("  Limitation #" + (i + 1) + ":");
+            for (int j = 1; j <= cols; ++j) {
+                System.out.print("    Multiplier #" + j + ": ");
+                simplex_table[i][j] = keyboard.nextDouble();
+            }
+        }
+        System.out.println("\nLIMITATIONS: FREE TERMS");
+        for (int i = 0; i < rows; ++i) {
+            System.out.print(" Limitation #" + (i+1) + ": ");
+            simplex_table[i][0] = keyboard.nextDouble();
+        }
+
+        System.out.println("");
+        return simplex_table;
+
     }
 
 }
