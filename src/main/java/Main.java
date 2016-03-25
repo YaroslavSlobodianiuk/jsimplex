@@ -1,5 +1,6 @@
 import java.io.File;
 import java.util.Scanner;
+import java.util.Locale;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.apache.commons.cli.Options;
@@ -99,9 +100,9 @@ public class Main {
         Scanner scanner;
 
         if (fileName == null) {
-            scanner = new Scanner(System.in);
+            scanner = new Scanner(System.in).useLocale(new Locale("US"));
         } else {
-            scanner = new Scanner(new File(fileName));
+            scanner = new Scanner(new File(fileName)).useLocale(new Locale("US"));
         }
 
         if (fileName == null) System.out.print("Number of variables: ");
