@@ -59,13 +59,13 @@ public class Main {
         int cols = simplexTable.cols();
         int rows = simplexTable.rows();
         int resCol, resRow;
-        int [] rows_names = new int[rows];
+        int [] rowNames = new int[rows];
         double [] solution = new double[rows];
         boolean solved = false;
 		String answer = "";
 
         for (int j = 0; j < rows; j++)
-            rows_names[j] = cols + j + 1;
+            rowNames[j] = cols + j + 1;
 
         while (!solved) {
             resCol = simplexTable.findResCol();
@@ -75,14 +75,14 @@ public class Main {
                 solved = true;
             } else {
                 resRow = simplexTable.findResRow(resCol);
-                rows_names[resRow] = resCol;
+                rowNames[resRow] = resCol;
                 simplexTable.step(resRow, resCol);
             }
         }
 
         for (int i = 1; i <= cols; i++) {
             int j = 0;
-            for (; j < rows && rows_names[j] != i; j++);
+            for (; j < rows && rowNames[j] != i; j++);
 			answer += "x" + i + " = ";
             if (j == rows) {
 				answer += "0\n";
@@ -111,30 +111,30 @@ public class Main {
         if (fileName == null) System.out.print("Number of limitations: ");
         int rows = scanner.nextInt();
 
-        double [][] simplex_table = new double[rows + 1][cols + 1];
+        double [][] simplexTable = new double[rows + 1][cols + 1];
 
-        simplex_table[rows][0] = 0;
+        simplexTable[rows][0] = 0;
         if (fileName == null) System.out.println("\nCOST FUNCTION");
         for (int i = 1; i <= cols; ++i) {
             if (fileName == null) System.out.print("  Multiplier #" + i + ": ");
-            simplex_table[rows][i] = -scanner.nextDouble();
+            simplexTable[rows][i] = -scanner.nextDouble();
         }
         if (fileName == null) System.out.println("\nLIMITATIONS: MULTIPLIERS");
         for (int i = 0; i < rows; ++i) {
             if (fileName == null) System.out.println("  Limitation #" + (i + 1) + ":");
             for (int j = 1; j <= cols; ++j) {
                 if (fileName == null) System.out.print("    Multiplier #" + j + ": ");
-                simplex_table[i][j] = scanner.nextDouble();
+                simplexTable[i][j] = scanner.nextDouble();
             }
         }
         if (fileName == null) System.out.println("\nLIMITATIONS: FREE TERMS");
         for (int i = 0; i < rows; ++i) {
             if (fileName == null) System.out.print(" Limitation #" + (i+1) + ": ");
-            simplex_table[i][0] = scanner.nextDouble();
+            simplexTable[i][0] = scanner.nextDouble();
         }
 
         if (fileName == null) System.out.println("");
-        return simplex_table;
+        return simplexTable;
 
     }
 
