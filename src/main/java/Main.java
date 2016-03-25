@@ -23,17 +23,17 @@ public class Main {
 										.hasArg()
 										.withDescription("output file")
 										.create("o") );
-		
+
 		CommandLine line = parser.parse(options, args);
-		
+
 		String output;
-		
+
 		// Имя входного файла
 		if (line.hasOption("input"))
 			output = perform(line.getOptionValue("input"));
 		else
 			output = "Error: No input file specified.";
-      
+
 	  	// Вывод
 		if (line.hasOption("output")) {
 			try( PrintWriter out = new PrintWriter(line.getOptionValue("output")) ) {
@@ -43,7 +43,7 @@ public class Main {
 			System.out.println(output);
 		}
     }
-	
+
 	public static String perform(String inputFileName) {
 		try {
 			Scanner scanner = new Scanner(new File(inputFileName));
@@ -137,7 +137,7 @@ public class Main {
 		answer += "max{ F(x) } = " + simplex_table[rows][0] + '\n';
 		return answer;
     }
-	
+
     private static boolean checkLimitation(int col, int rows, final double [][] simplex_table) {
         for (int i = 0; i < rows; ++i)
             if (simplex_table[i][col] > 0.0)
@@ -190,5 +190,5 @@ public class Main {
 
         simplex_table[resRow][resCol] = 1 / simplex_table[resRow][resCol];
     }
-	
+
 }
