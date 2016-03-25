@@ -18,14 +18,6 @@ public class SimplexTable {
         return table[row][column];
     }
 
-    public boolean isLimited(int column) {
-        for (int i = 0; i < rows(); i++)
-            if (table[i][column] > 0f)
-                return true;
-
-        return false;
-    }
-
     public int findResCol() {
         int resCol = 0;
 
@@ -107,6 +99,14 @@ public class SimplexTable {
         problem += "x_i >= 0, i = 1.." + Integer.toString(cols()) + "\n";
 
         return problem;
+    }
+
+    private boolean isLimited(int column) {
+        for (int i = 0; i < rows(); i++)
+            if (table[i][column] > 0f)
+                return true;
+
+        return false;
     }
 
 }
