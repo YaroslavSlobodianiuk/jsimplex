@@ -48,30 +48,9 @@ public class Main {
 
 	public static String perform(String inputFileName) {
 		try {
-            int rows, cols;
-            double [][] simplex_table;
-
-            if (inputFileName == null) {
-                simplex_table = commandLineInput();
-                cols = simplex_table[0].length - 1;
-                rows = simplex_table.length - 1;
-            } else {
-                Scanner scanner = new Scanner(new File(inputFileName));
-
-    	       	cols = scanner.nextInt();
-    	       	rows = scanner.nextInt();
-
-    	       	simplex_table = new double[rows + 1][cols + 1];
-
-    	       	simplex_table[rows][0] = 0;
-    	       	for (int i = 1; i <= cols; ++i)
-    	    	   simplex_table[rows][i] = -scanner.nextDouble();
-    	       	for (int i = 0; i < rows; ++i)
-    	    	   for (int j = 1; j <= cols; ++j)
-    	    		   simplex_table[i][j] = scanner.nextDouble();
-    	       	for (int i = 0; i < rows; ++i)
-    	        	simplex_table[i][0] = scanner.nextDouble();
-            }
+            double [][] simplex_table = simplexTable(inputFileName);
+            int cols = simplex_table[0].length - 1;
+            int rows = simplex_table.length - 1;
 
 	       	return problem(rows, cols, simplex_table) + solve(rows, cols, simplex_table);
 		} catch (IOException e) {
@@ -201,40 +180,45 @@ public class Main {
         simplex_table[resRow][resCol] = 1 / simplex_table[resRow][resCol];
     }
 
-    private static double[][] commandLineInput() {
+    private static double[][] simplexTable(String fileName) throws IOException {
 
-        String input;
-        Scanner keyboard = new Scanner(System.in);
+        Scanner scanner;
 
-        System.out.print("Number of variables: ");
-        int cols = keyboard.nextInt();
+        if (fileName == null) {
+            scanner = new Scanner(System.in);
+        } else {
+            scanner = new Scanner(new File(fileName));
+        }
 
-        System.out.print("Number of limitations: ");
-        int rows = keyboard.nextInt();
+        if (fileName == null) System.out.print("Number of variables: ");
+        int cols = scanner.nextInt();
+
+        if (fileName == null) System.out.print("Number of limitations: ");
+        int rows = scanner.nextInt();
 
         double [][] simplex_table = new double[rows + 1][cols + 1];
 
         simplex_table[rows][0] = 0;
-        System.out.println("\nCOST FUNCTION");
+        if (fileName == null) System.out.println("\nCOST FUNCTION");
         for (int i = 1; i <= cols; ++i) {
-            System.out.print("  Multiplier #" + i + ": ");
-            simplex_table[rows][i] = -keyboard.nextDouble();
+            if (fileName == null) System.out.print("  Multiplier #" + i + ": ");
+            simplex_table[rows][i] = -scanner.nextDouble();
         }
-        System.out.println("\nLIMITATIONS: MULTIPLIERS");
+        if (fileName == null) System.out.println("\nLIMITATIONS: MULTIPLIERS");
         for (int i = 0; i < rows; ++i) {
-            System.out.println("  Limitation #" + (i + 1) + ":");
+            if (fileName == null) System.out.println("  Limitation #" + (i + 1) + ":");
             for (int j = 1; j <= cols; ++j) {
-                System.out.print("    Multiplier #" + j + ": ");
-                simplex_table[i][j] = keyboard.nextDouble();
+                if (fileName == null) System.out.print("    Multiplier #" + j + ": ");
+                simplex_table[i][j] = scanner.nextDouble();
             }
         }
-        System.out.println("\nLIMITATIONS: FREE TERMS");
+        if (fileName == null) System.out.println("\nLIMITATIONS: FREE TERMS");
         for (int i = 0; i < rows; ++i) {
-            System.out.print(" Limitation #" + (i+1) + ": ");
-            simplex_table[i][0] = keyboard.nextDouble();
+            if (fileName == null) System.out.print(" Limitation #" + (i+1) + ": ");
+            simplex_table[i][0] = scanner.nextDouble();
         }
 
-        System.out.println("");
+        if (fileName == null) System.out.println("");
         return simplex_table;
 
     }
