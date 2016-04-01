@@ -1,3 +1,3 @@
 #!/bin/sh
-rm -rf build/libs/kbes-slp.jar
-mv build/libs/kbes-slp-all.jar build/libs/kbes-slp.jar
+rm -rf build/libs/jsimplex.jar
+mv build/libs/jsimplex-all.jar build/libs/jsimplex.jar
