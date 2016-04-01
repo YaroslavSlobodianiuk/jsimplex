@@ -1,6 +1,8 @@
 import org.junit.Test;
 import org.junit.ComparisonFailure;
 import java.io.IOException;
+import java.io.File;
+import java.util.Scanner;
 import java.nio.file.Paths;
 import java.nio.file.Files;
 import java.nio.charset.StandardCharsets;
@@ -15,27 +17,14 @@ public class MainTest {
 	}
 
 	@Test
-	public void output1() throws ComparisonFailure {
-		assertEquals(output("output1.txt"), Main.perform(fixture("input1.txt")));
-	}
+	public void outputTest() throws IOException {
+		File fixturesDir = new File("src/test/fixtures");
+	  File[] fixtures = fixturesDir.listFiles();
 
-	@Test
-	public void output2() throws ComparisonFailure {
-		assertEquals(output("output2.txt"), Main.perform(fixture("input2.txt")));
-	}
-
-	@Test
-	public void output3() throws ComparisonFailure {
-		assertEquals(output("output3.txt"), Main.perform(fixture("input3.txt")));
-	}
-
-	@Test
-	public void output4() throws ComparisonFailure {
-		assertEquals(output("output4.txt"), Main.perform(fixture("input4.txt")));
-	}
-
-	private String fixture(String fileName) {
-		return "src/test/fixtures/" + fileName;
+	  if (fixtures != null)
+	    for (File fixture : fixtures) {
+	      assertEquals(Main.perform(fixture.getPath()), output(fixture.getName()));
+	    }
 	}
 
 	private String output(String fileName) {
