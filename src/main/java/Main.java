@@ -1,7 +1,6 @@
 import java.io.File;
 import java.util.Scanner;
 import java.util.Locale;
-import java.util.HashMap;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,11 +27,13 @@ public class Main {
         options.addOption( OptionBuilder.withLongOpt("verbose")
                                         .withDescription("вербальный режим")
                                         .create("v") );
+        options.addOption( OptionBuilder.withLongOpt("integer")
+                                        .withDescription("округление ответа до целых чисел")
+                                        .create() );
 
 		CommandLine line = parser.parse(options, args);
 
 		String input, output;
-        boolean verbose;
 
 		// Имя входного файла
 		if (line.hasOption("input"))
@@ -40,9 +41,7 @@ public class Main {
 		else
 			input = null;
 
-        verbose = line.hasOption("verbose");
-
-        output = perform(input, verbose);
+        output = perform(input, line.hasOption("verbose"), line.hasOption("integer"));
 
 	    // Вывод
 		if (line.hasOption("output")) {
@@ -54,86 +53,74 @@ public class Main {
 		}
     }
 
-	public static String perform(String inputFileName, boolean verbose) {
+	public static String perform(String inputFileName, boolean verbose, boolean integer) {
 		try {
             SimplexTable simplexTable = new SimplexTable(createSimplexTable(inputFileName));
 
-            HashMap solution = solve(simplexTable);
-            String answer = (String) solution.get("answer");
-            String steps = "";
+            String states = verbose ? highlight("Исходная таблица: ") + "\n" + simplexTable + "\n" : "";
+            Answer answer = solve(simplexTable);
 
             if (verbose) {
-                ArrayList<String> stepList = (ArrayList<String>) solution.get("step_list");
+                ArrayList<SimplexTable> stateList = simplexTable.getStateList();
 
-                int stepNumber = 1;
-                for (String step : stepList) {
-                    steps += highlight("Шаг " + stepNumber) + "\n" + step + "\n";
-                    stepNumber++;
+                int stateNumber = 1;
+                for (SimplexTable state : stateList) {
+                    states += highlight("Шаг " + stateNumber) + "\n" + state + "\n";
+                    stateNumber++;
                 }
             }
 
 	       	return highlight("Задача") + "\n" +
                     simplexTable.problemString() + "\n" +
-                    steps +
+                    states +
                     highlight("Решение") + "\n" +
-                    answer;
+                    answer.toString(integer);
 		} catch (IOException e) {
 			return "Файл не найден: " + inputFileName;
 		}
 	}
 
     public static String perform(String inputFileName) {
-        return perform(inputFileName, false);
+        return perform(inputFileName, false, false);
     }
 
-    public static HashMap solve(SimplexTable simplexTable) {
+    public static Answer solve(SimplexTable simplexTable) {
         int cols = simplexTable.cols();
         int rows = simplexTable.rows();
         int resCol, resRow;
         int [] rowNames = new int[rows];
         double [] solution = new double[rows];
         boolean solved = false;
-        HashMap result = new HashMap();
-		String answer = "";
-        ArrayList<String> stepList = new ArrayList(1);
+        Answer answer = new Answer();
 
         for (int j = 0; j < rows; j++)
             rowNames[j] = cols + j + 1;
 
-        stepList.add(simplexTable.toString());
-
         while (!solved) {
             resCol = simplexTable.findResCol();
             if (resCol == -1) {
-                result.put("answer", "Функция не ограничена\n");
-                return result;
+                return new NullAnswer();
             } else if (resCol == 0) {
                 solved = true;
             } else {
                 resRow = simplexTable.findResRow(resCol);
                 rowNames[resRow] = resCol;
                 simplexTable.step(resRow, resCol);
-                stepList.add(simplexTable.toString());
             }
         }
 
         for (int i = 1; i <= cols; i++) {
             int j = 0;
             for (; j < rows && rowNames[j] != i; j++);
-			answer += "x" + i + " = ";
-            if (j == rows) {
-				answer += "0\n";
-            }
-            else {
-				answer += simplexTable.getElement(j, 0) + "\n";
-            }
+            if (j == rows)
+                answer.addItem("x" + i, 0);
+            else
+                answer.addItem("x" + i, simplexTable.getElement(j, 0));
         }
 
-		answer += "max{ F(x) } = " + simplexTable.getElement(rows, 0);
-        result.put("answer", answer);
-        result.put("step_list", stepList);
+        answer.addItem("max{ F(x) }", simplexTable.getElement(rows, 0));
 
-		return result;
+		return answer;
     }
 
     public static double[][] createSimplexTable(String fileName) throws IOException {

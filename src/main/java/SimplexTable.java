@@ -1,9 +1,13 @@
+import java.util.ArrayList;
+
 public class SimplexTable {
 
     private double[][] table;
+    private ArrayList<SimplexTable> stateList;
 
     public SimplexTable(double[][] table) {
         this.table = table;
+        stateList = new ArrayList();
     }
 
     public int rows() {
@@ -54,6 +58,8 @@ public class SimplexTable {
     }
 
     public void step(int resRow, int resCol) {
+        stateList.add(new SimplexTable(table));
+
         for (int i = 0; i <= rows(); i++)
             if (i != resRow)
                 for (int j = 0; j <= cols(); j++)
@@ -102,6 +108,10 @@ public class SimplexTable {
         problem += "x_i >= 0, i = 1.." + Integer.toString(cols()) + "\033[0m\n";
 
         return problem;
+    }
+
+    public ArrayList<SimplexTable> getStateList() {
+        return stateList;
     }
 
     public String toString() {
