@@ -13,23 +13,22 @@ public class Answer {
         items.put(key, value);
     }
 
-    public String toString(boolean integer) {
+    public String toString(boolean integer, boolean asCsv) {
         String string = "";
 
         for (Map.Entry<String, Double> item : items.entrySet()) {
-            string += item.getKey() + " = ";
+            string += "\n" + item.getKey() + (asCsv ? ", " : " = ");
             if (integer)
                 string += (int) Math.floor(item.getValue());
             else
                 string += item.getValue();
-            string += "\n";
         }
 
         return string;
     }
 
     public String toString() {
-        return toString(false);
+        return toString(false, false);
     }
 
 }

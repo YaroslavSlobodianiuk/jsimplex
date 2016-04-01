@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.CommandLine;
 
@@ -14,7 +14,7 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 		// Разбор CLI
-		CommandLineParser parser = new GnuParser();
+		CommandLineParser parser = new PosixParser();
 		Options options = new Options();
 		options.addOption( OptionBuilder.withLongOpt("input")
 										.hasArg()
@@ -30,6 +30,9 @@ public class Main {
         options.addOption( OptionBuilder.withLongOpt("integer")
                                         .withDescription("округление ответа до целых чисел")
                                         .create() );
+        options.addOption( OptionBuilder.withLongOpt("csv")
+                                        .withDescription("запись в csv-файл")
+                                        .create("c") );
 
 		CommandLine line = parser.parse(options, args);
 
@@ -41,7 +44,12 @@ public class Main {
 		else
 			input = null;
 
-        output = perform(input, line.hasOption("verbose"), line.hasOption("integer"));
+        if (line.hasOption("csv") && !line.hasOption("output")) {
+            System.out.println("Опция -o (--output) обязательна при использовании опции -c (--csv)!");
+            return;
+        }
+
+        output = perform(input, line.hasOption("verbose"), line.hasOption("integer"), line.hasOption("csv"));
 
 	    // Вывод
 		if (line.hasOption("output")) {
@@ -53,7 +61,7 @@ public class Main {
 		}
     }
 
-	public static String perform(String inputFileName, boolean verbose, boolean integer) {
+	public static String perform(String inputFileName, boolean verbose, boolean integer, boolean csv) {
 		try {
             SimplexTable simplexTable = new SimplexTable(createSimplexTable(inputFileName));
 
@@ -70,18 +78,20 @@ public class Main {
                 }
             }
 
-	       	return highlight("Задача") + "\n" +
-                    simplexTable.problemString() + "\n" +
-                    states +
-                    highlight("Решение") + "\n" +
-                    answer.toString(integer);
+            String prefix = csv ? ""
+                    : ( highlight("Задача") + "\n" +
+                        simplexTable.problemString() + "\n" +
+                        states +
+                        highlight("Решение"));
+
+	       	return prefix + answer.toString(integer, csv);
 		} catch (IOException e) {
 			return "Файл не найден: " + inputFileName;
 		}
 	}
 
     public static String perform(String inputFileName) {
-        return perform(inputFileName, false, false);
+        return perform(inputFileName, false, false, false);
     }
 
     public static Answer solve(SimplexTable simplexTable) {
