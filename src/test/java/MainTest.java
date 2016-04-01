@@ -1,5 +1,4 @@
 import org.junit.Test;
-import org.junit.ComparisonFailure;
 import java.io.IOException;
 import java.io.File;
 import java.util.Scanner;
