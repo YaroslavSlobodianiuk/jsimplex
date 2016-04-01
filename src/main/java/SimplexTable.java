@@ -35,6 +35,9 @@ public class SimplexTable {
     }
 
     public int findResRow(int resCol) {
+        if (resCol < 0)
+            return -1;
+
         double minRatio = -1f, ratio = 0f;
         int resRow = 0;
 
@@ -69,7 +72,7 @@ public class SimplexTable {
     }
 
     public String problemString() {
-        String problem = "Problem:\n\nF(x) = " + Double.toString(-table[rows()][1]) + " * x1";
+        String problem = "\033[1mF(x) = " + Double.toString(-table[rows()][1]) + " * x1";
 
         for (int i = 2; i <= cols(); i++) {
             if (Math.signum(-table[rows()][i]) < 0) {
@@ -81,11 +84,11 @@ public class SimplexTable {
             problem += Double.toString(Math.abs(table[rows()][i])) + " * x" + Integer.toString(i);
         }
 
-        problem += " --> max\n";
+        problem += " --> max\033[0m\n";
 
-        for (int i = 0; i < rows(); ++i) {
+        for (int i = 0; i < rows(); i++) {
             problem += Double.toString(table[i][1]) + " * x1";
-            for (int j = 2; j <= cols(); ++j) {
+            for (int j = 2; j <= cols(); j++) {
                 if (Math.signum(table[i][j]) < 0) {
                     problem += " - ";
                 }
@@ -96,9 +99,40 @@ public class SimplexTable {
             }
             problem += " <= " + Double.toString(table[i][0]) + '\n';
         }
-        problem += "x_i >= 0, i = 1.." + Integer.toString(cols()) + "\n";
+        problem += "x_i >= 0, i = 1.." + Integer.toString(cols()) + "\033[0m\n";
 
         return problem;
+    }
+
+    public String toString() {
+        return toString(true);
+    }
+
+    public String toString(boolean shouldFindResElement) {
+        String string = "";
+
+        for (int i = 0; i < rows(); i++) {
+
+            for (int j = 0; j < cols(); j++) {
+
+                if (shouldFindResElement) {
+                    int resCol = findResCol();
+                    int resRow = findResRow(resCol);
+
+                    if (i == resRow && j == resCol)
+                        string += "\033[4m\033[1m" + getElement(i, j) + "\033[0m";
+                    else
+                        string += getElement(i, j);
+                } else
+                    string += getElement(i, j);
+
+                string += " ";
+            }
+
+            string += '\n';
+        }
+
+        return string;
     }
 
     private boolean isLimited(int column) {
