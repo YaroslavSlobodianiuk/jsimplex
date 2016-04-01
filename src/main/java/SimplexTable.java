@@ -121,9 +121,9 @@ public class SimplexTable {
     public String toString(boolean shouldFindResElement) {
         String string = "";
 
-        for (int i = 0; i < rows(); i++) {
+        for (int i = 0; i <= rows(); i++) {
 
-            for (int j = 0; j < cols(); j++) {
+            for (int j = 0; j <= cols(); j++) {
 
                 if (shouldFindResElement) {
                     int resCol = findResCol();

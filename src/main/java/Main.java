@@ -33,6 +33,12 @@ public class Main {
         options.addOption( OptionBuilder.withLongOpt("csv")
                                         .withDescription("запись в csv-файл")
                                         .create("c") );
+        options.addOption( OptionBuilder.withLongOpt("min")
+                                        .withDescription("минимизировать целевую функцию")
+                                        .create() );
+        options.addOption( OptionBuilder.withLongOpt("max")
+                                        .withDescription("максимизировать целевую функцию")
+                                        .create() );
 
 		CommandLine line = parser.parse(options, args);
 
@@ -49,7 +55,12 @@ public class Main {
             return;
         }
 
-        output = perform(input, line.hasOption("verbose"), line.hasOption("integer"), line.hasOption("csv"));
+        if (line.hasOption("min") && line.hasOption("max")) {
+            System.out.println("Опции --max и --min несовместимы!");
+            return;
+        }
+
+        output = perform(input, line.hasOption("verbose"), line.hasOption("integer"), line.hasOption("csv"), line.hasOption("min"));
 
 	    // Вывод
 		if (line.hasOption("output")) {
@@ -61,9 +72,9 @@ public class Main {
 		}
     }
 
-	public static String perform(String inputFileName, boolean verbose, boolean integer, boolean csv) {
+	public static String perform(String inputFileName, boolean verbose, boolean integer, boolean csv, boolean minimize) {
 		try {
-            SimplexTable simplexTable = new SimplexTable(createSimplexTable(inputFileName));
+            SimplexTable simplexTable = new SimplexTable(createSimplexTable(inputFileName, minimize));
 
             String states = verbose ? highlight("Исходная таблица: ") + "\n" + simplexTable + "\n" : "";
             Answer answer = solve(simplexTable);
@@ -91,7 +102,7 @@ public class Main {
 	}
 
     public static String perform(String inputFileName) {
-        return perform(inputFileName, false, false, false);
+        return perform(inputFileName, false, false, false, false);
     }
 
     public static Answer solve(SimplexTable simplexTable) {
@@ -110,12 +121,14 @@ public class Main {
             resCol = simplexTable.findResCol();
             if (resCol == -1) {
                 return new NullAnswer();
-            } else if (resCol == 0) {
-                solved = true;
             } else {
-                resRow = simplexTable.findResRow(resCol);
-                rowNames[resRow] = resCol;
-                simplexTable.step(resRow, resCol);
+                solved = resCol == 0;
+
+                if (!solved) {
+                    resRow = simplexTable.findResRow(resCol);
+                    rowNames[resRow] = resCol;
+                    simplexTable.step(resRow, resCol);
+                }
             }
         }
 
@@ -133,7 +146,7 @@ public class Main {
 		return answer;
     }
 
-    public static double[][] createSimplexTable(String fileName) throws IOException {
+    public static double[][] createSimplexTable(String fileName, boolean minimize) throws IOException {
 
         Scanner scanner;
 
@@ -155,7 +168,7 @@ public class Main {
         if (fileName == null) System.out.println(highlight("\nЦелевая функция"));
         for (int i = 1; i <= cols; ++i) {
             if (fileName == null) System.out.print("  Коэффициент #" + i + ": ");
-            simplexTable[rows][i] = -scanner.nextDouble();
+            simplexTable[rows][i] = minimize ? scanner.nextDouble() : -scanner.nextDouble();
         }
         if (fileName == null) System.out.println(highlight("\nКоэффициенты ограничений"));
         for (int i = 0; i < rows; ++i) {
@@ -174,6 +187,10 @@ public class Main {
         if (fileName == null) System.out.println("");
         return simplexTable;
 
+    }
+
+    public static double[][] createSimplexTable(String fileName) throws IOException {
+        return createSimplexTable(fileName, false);
     }
 
     private static String highlight(String line) {

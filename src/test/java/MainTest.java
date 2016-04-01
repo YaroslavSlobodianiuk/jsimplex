@@ -24,29 +24,34 @@ public class MainTest {
 
 	@Test
 	public void integerTest() throws IOException {
-		testDirectory("integer", true, false);
+		testDirectory("integer", true, false, false);
 	}
 
 	@Test
 	public void csvTest() throws IOException {
-		testDirectory("csv", false, true);
+		testDirectory("csv", false, true, false);
 	}
 
-	private void testDirectory(String dir, boolean integer, boolean csv) throws IOException {
+	// @Test
+	// public void minimizeTest() throws IOException {
+	// 	testDirectory("minimize", false, false, true);
+	// }
+
+	private void testDirectory(String dir, boolean integer, boolean csv, boolean minimize) throws IOException {
 		File fixturesDir = new File(FIXTURES_FOLDER + dir);
 	  	File[] fixtures = fixturesDir.listFiles();
 
 	  	if (fixtures != null)
 			for (File fixture : fixtures)
-				testFixture(dir, fixture, integer, csv);
+				testFixture(dir, fixture, integer, csv, minimize);
 	}
 
 	private void testDirectory(String dir) throws IOException {
-		testDirectory(dir, false, false);
+		testDirectory(dir, false, false, false);
 	}
 
-	private void testFixture(String dir, File fixture, boolean integer, boolean csv) throws IOException {
-		SimplexTable simplexTable = new SimplexTable(Main.createSimplexTable(fixture.getPath()));
+	private void testFixture(String dir, File fixture, boolean integer, boolean csv, boolean minimize) throws IOException {
+		SimplexTable simplexTable = new SimplexTable(Main.createSimplexTable(fixture.getPath(), minimize));
 		assertEquals(output(dir, fixture.getName()).trim(), Main.solve(simplexTable).toString(integer, csv).trim());
 	}
 
