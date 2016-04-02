@@ -1,12 +1,15 @@
-package com.github.akxcv.jsimplex;
+package com.akxcv.jsimplex;
 
 import java.io.File;
-import java.util.Scanner;
-import java.util.Locale;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.Locale;
+import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import com.akxcv.jsimplex.exception.LimitationException;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.PosixParser;
@@ -16,35 +19,24 @@ import org.apache.commons.cli.ParseException;
 
 public class Main {
 
-    public static void main(String[] args) throws Exception {
-		// Разбор CLI
-		CommandLineParser parser = new PosixParser();
-		Options options = new Options();
-		options.addOption( OptionBuilder.withLongOpt("input")
-										.hasArg()
-										.withDescription("входной файл")
-										.create("i") );
-		options.addOption( OptionBuilder.withLongOpt("output")
-										.hasArg()
-										.withDescription("выходной файл")
-										.create("o") );
-        options.addOption( OptionBuilder.withLongOpt("verbose")
-                                        .withDescription("вербальный режим")
-                                        .create("v") );
-        options.addOption( OptionBuilder.withLongOpt("integer")
-                                        .withDescription("округление ответа до целых чисел")
-                                        .create() );
-        options.addOption( OptionBuilder.withLongOpt("csv")
-                                        .withDescription("запись в csv-файл")
-                                        .create("c") );
-        options.addOption( OptionBuilder.withLongOpt("min")
-                                        .withDescription("минимизировать целевую функцию")
-                                        .create() );
-        options.addOption( OptionBuilder.withLongOpt("max")
-                                        .withDescription("максимизировать целевую функцию")
-                                        .create() );
+    public static void main(String[] args) {
+        HashMap options = null;
 
-		CommandLine line = parser.parse(options, args);
+        try {
+            options = parseCommandLine(args);
+        } catch (ParseException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        try {
+            Input input = getUserInput(options);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+
+        /*
 
 		String input, output;
 
@@ -54,15 +46,6 @@ public class Main {
 		else
 			input = null;
 
-        if (line.hasOption("csv") && !line.hasOption("output")) {
-            System.out.println("Опция -o (--output) обязательна при использовании опции -c (--csv)!");
-            return;
-        }
-
-        if (line.hasOption("min") && line.hasOption("max")) {
-            System.out.println("Опции --max и --min несовместимы!");
-            return;
-        }
 
         output = perform(input, line.hasOption("verbose"), line.hasOption("integer"), line.hasOption("csv"), line.hasOption("min"));
 
@@ -73,10 +56,10 @@ public class Main {
 			}
 		} else {
 			System.out.println(output);
-		}
+		}*/
     }
 	
-	private static HashMap parseCommandLine(String[] args) throws ParseException {
+	private static HashMap<String, Object> parseCommandLine(String[] args) throws ParseException {
 		CommandLineParser parser = new PosixParser();
 		Options options = new Options();
 		options.addOption( OptionBuilder.withLongOpt("input")
@@ -104,14 +87,18 @@ public class Main {
                                         .create() );
 
 		CommandLine line = parser.parse(options, args);
-		HashMap optionHash = new HashMap();
+		HashMap<String, Object>  optionHash = new HashMap<>();
+
+        if (line.hasOption("csv") && !line.hasOption("output"))
+            throw new ParseException("Опция -o (--output) обязательна при использовании опции -c (--csv)!");
+
+        if (line.hasOption("min") && line.hasOption("max"))
+            throw new ParseException("Опции --max и --min несовместимы!");
 		
 		if (line.hasOption("input"))
 			optionHash.put("input", line.getOptionValue("input"));
-		
 		if (line.hasOption("output"))
 			optionHash.put("output", line.getOptionValue("output"));
-		
 		optionHash.put("verbose", line.hasOption("verbose"));
 		optionHash.put("integer", line.hasOption("integer"));
 		optionHash.put("csv", line.hasOption("csv"));
@@ -120,6 +107,81 @@ public class Main {
 		return optionHash;
 	}
 
+    private static Input getUserInput(HashMap options) throws FileNotFoundException, LimitationException {
+        CostFunction costFunction = null;
+        ArrayList<Limitation> limitations = new ArrayList<>();
+
+        if (options.containsKey("input")) {
+            Scanner scanner = new Scanner(new File(options.get("input").toString())).useLocale(new Locale("US"));
+
+            String line = scanner.nextLine();
+            costFunction = stringToCostFunction(line);
+
+            while (scanner.hasNextLine()) {
+                line = scanner.nextLine();
+                limitations.add(stringToLimitation(line));
+            }
+        }
+
+        // STUB
+        return new Input(costFunction, limitations.toArray(new Limitation[0]));
+    }
+
+    private static CostFunction stringToCostFunction(String string) {
+        string = string.replaceAll("\\s", "");
+        String[] atoms = string.split("\\-\\->|\\->|(?=\\+)|(?=\\-)");
+        Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
+
+        double[] coefs = new double[atoms.length - 1];
+        int coefsCount = 0;
+
+        for (String atom : atoms) {
+            Matcher m = p.matcher(atom);
+            if (m.find())
+                coefs[coefsCount] = Double.parseDouble(m.group(0));
+
+            coefsCount++;
+        }
+
+        return new CostFunction(coefs, atoms[coefsCount].equals("min"));
+    }
+
+    private static Limitation stringToLimitation(String string) throws LimitationException {
+        Limitation.LimitationSign sign;
+
+        if (string.contains("<="))
+            sign = Limitation.LimitationSign.LE;
+
+        if (string.contains(">=")) {
+            if (string.contains("<="))
+                throw new LimitationException("Неверный знак ограничения");
+            sign = Limitation.LimitationSign.ME;
+        } else
+            sign = Limitation.LimitationSign.EQ;
+
+        string = string.replaceAll("\\s|<|>", "");
+        String[] atoms = string.split("=|(?=\\+)|(?=\\-)");
+        Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
+
+        double[] coefs = new double[atoms.length - 1];
+        int coefsCount = 0;
+        double freeTerm = 0d;
+
+        for (String atom : atoms) {
+            Matcher m = p.matcher(atom);
+            if (coefsCount != atoms.length - 1) {
+                if (m.find())
+                    coefs[coefsCount] = Double.parseDouble(m.group(0));
+                coefsCount++;
+            } else {
+                freeTerm = Double.parseDouble(m.group(0));
+            }
+        }
+
+        return new Limitation(coefs, sign, freeTerm);
+    }
+
+/*
 	public static String perform(String inputFileName, boolean verbose, boolean integer, boolean csv, boolean minimize) {
 		try {
             SimplexTable simplexTable = new SimplexTable(createSimplexTable(inputFileName, minimize));
@@ -244,5 +306,5 @@ public class Main {
     private static String highlight(String line) {
         return "\033[7m" + line + "\033[0m";
     }
-
+*/
 }

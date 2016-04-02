@@ -1,4 +1,4 @@
-package com.github.akxcv.jsimplex;
+package com.akxcv.jsimplex.problem;
 
 public class NullAnswer extends Answer {
 

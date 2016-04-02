@@ -1,6 +1,6 @@
-package com.github.akxcv.jsimplex;
+package com.akxcv.jsimplex;
 
-class CostFunction {
+public class CostFunction {
 	
 	private double[] coefs;
 	private boolean minimize;
