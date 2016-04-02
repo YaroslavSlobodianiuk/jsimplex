@@ -1,3 +1,5 @@
+package com.github.akxcv.jsimplex;
+
 class CostFunction {
 	
 	private double[] coefs;

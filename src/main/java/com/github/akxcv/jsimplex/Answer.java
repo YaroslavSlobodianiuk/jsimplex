@@ -1,3 +1,5 @@
+package com.github.akxcv.jsimplex;
+
 import java.util.Map;
 import java.util.LinkedHashMap;
 

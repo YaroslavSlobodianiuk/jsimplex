@@ -1,7 +1,10 @@
+package com.github.akxcv.jsimplex;
+
 import java.io.File;
 import java.util.Scanner;
 import java.util.Locale;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.io.IOException;
 import java.io.PrintWriter;
 import org.apache.commons.cli.Options;
@@ -9,6 +12,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.ParseException;
 
 public class Main {
 
@@ -71,6 +75,50 @@ public class Main {
 			System.out.println(output);
 		}
     }
+	
+	private static HashMap parseCommandLine(String[] args) throws ParseException {
+		CommandLineParser parser = new PosixParser();
+		Options options = new Options();
+		options.addOption( OptionBuilder.withLongOpt("input")
+										.hasArg()
+										.withDescription("входной файл")
+										.create("i") );
+		options.addOption( OptionBuilder.withLongOpt("output")
+										.hasArg()
+										.withDescription("выходной файл")
+										.create("o") );
+        options.addOption( OptionBuilder.withLongOpt("verbose")
+                                        .withDescription("вербальный режим")
+                                        .create("v") );
+        options.addOption( OptionBuilder.withLongOpt("integer")
+                                        .withDescription("округление ответа до целых чисел")
+                                        .create() );
+        options.addOption( OptionBuilder.withLongOpt("csv")
+                                        .withDescription("запись в csv-файл")
+                                        .create("c") );
+        options.addOption( OptionBuilder.withLongOpt("min")
+                                        .withDescription("минимизировать целевую функцию")
+                                        .create() );
+        options.addOption( OptionBuilder.withLongOpt("max")
+                                        .withDescription("максимизировать целевую функцию")
+                                        .create() );
+
+		CommandLine line = parser.parse(options, args);
+		HashMap optionHash = new HashMap();
+		
+		if (line.hasOption("input"))
+			optionHash.put("input", line.getOptionValue("input"));
+		
+		if (line.hasOption("output"))
+			optionHash.put("output", line.getOptionValue("output"));
+		
+		optionHash.put("verbose", line.hasOption("verbose"));
+		optionHash.put("integer", line.hasOption("integer"));
+		optionHash.put("csv", line.hasOption("csv"));
+		optionHash.put("min", line.hasOption("min"));
+		
+		return optionHash;
+	}
 
 	public static String perform(String inputFileName, boolean verbose, boolean integer, boolean csv, boolean minimize) {
 		try {

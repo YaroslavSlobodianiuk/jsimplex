@@ -1,3 +1,5 @@
+package com.github.akxcv.jsimplex;
+
 class Limitation {
 	
 	public enum LimitationSign { LE, EQ, ME }

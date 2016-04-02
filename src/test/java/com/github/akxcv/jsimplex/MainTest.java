@@ -1,3 +1,5 @@
+package com.github.akxcv.jsimplex;
+
 import org.junit.Test;
 import java.io.IOException;
 import java.io.File;
@@ -9,8 +11,8 @@ import static org.junit.Assert.assertEquals;
 
 public class MainTest {
 
-	private String FIXTURES_FOLDER = "src/test/fixtures/";
-	private String OUTPUTS_FOLDER = "src/test/outputs/";
+	private String FIXTURES_FOLDER = "/src/test/fixtures/";
+	private String OUTPUTS_FOLDER = "/src/test/outputs/";
 
 	@Test
 	public void fileNotFound() {

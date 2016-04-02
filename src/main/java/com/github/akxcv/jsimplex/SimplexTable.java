@@ -1,3 +1,5 @@
+package com.github.akxcv.jsimplex;
+
 import java.util.ArrayList;
 
 public class SimplexTable {
