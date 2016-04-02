@@ -1,11 +1,11 @@
 package com.akxcv.jsimplex;
 
-public class CostFunction {
+class CostFunction {
 	
 	private double[] coefs;
 	private boolean minimize;
 	
-	public CostFunction(double[] coefs, boolean minimize) {
+	CostFunction(double[] coefs, boolean minimize) {
 		this.coefs = coefs;
 		this.minimize = minimize;
 	}
@@ -28,11 +28,11 @@ public class CostFunction {
 		return string;
 	}
 	
-	public double getCoef(int number) {
+	double getCoef(int number) {
 		return coefs[number];
 	}
 	
-	public int getCoefCount() {
+	int getCoefCount() {
 		return coefs.length;
 	}
 	

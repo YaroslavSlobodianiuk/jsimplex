@@ -1,14 +1,14 @@
 package com.akxcv.jsimplex;
 
-public class Limitation {
+class Limitation {
 	
-	public enum LimitationSign { LE, EQ, ME }
+	enum LimitationSign { LE, EQ, ME }
 	
 	private double[] coefs;
 	private LimitationSign sign;
 	private double freeTerm;
 	
-	public Limitation(double[] coefs, LimitationSign sign, double freeTerm) {
+	Limitation(double[] coefs, LimitationSign sign, double freeTerm) {
 		this.coefs = coefs;
 		this.sign = sign;
 		this.freeTerm = freeTerm;
@@ -50,7 +50,7 @@ public class Limitation {
 		return string;
 	}
 	
-	public double getCoef(int number) {
+	double getCoef(int number) {
 		return coefs[number];
 	}
 	
@@ -62,7 +62,7 @@ public class Limitation {
 		return sign;
 	}
 	
-	public double getFreeTerm() {
+	double getFreeTerm() {
 		return freeTerm;
 	}
 	

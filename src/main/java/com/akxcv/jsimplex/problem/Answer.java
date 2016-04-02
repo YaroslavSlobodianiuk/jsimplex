@@ -7,11 +7,11 @@ public class Answer {
 
     private LinkedHashMap<String, Double> items;
 
-    public Answer() {
-        items = new LinkedHashMap();
+    Answer() {
+        items = new LinkedHashMap<>();
     }
 
-    public void addItem(String key, double value) {
+    void addItem(String key, double value) {
         items.put(key, value);
     }
 

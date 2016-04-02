@@ -10,6 +10,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
 import com.akxcv.jsimplex.exception.InputException;
 import com.akxcv.jsimplex.problem.Answer;
 import com.akxcv.jsimplex.problem.Problem;
@@ -51,6 +52,8 @@ public class Main {
             System.out.println(e.getMessage());
             if (options.containsKey("debug") && options.get("debug").equals(true))
                 e.printStackTrace();
+        } catch (FunctionNotLimitedException e) {
+            System.out.println(e.getMessage());
         }
     }
 

@@ -1,5 +1,7 @@
 package com.akxcv.jsimplex.problem;
 
+import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
+
 /**
  * Created by evgeny on 02.04.16.
  */
@@ -10,7 +12,7 @@ public class Problem {
         this.simplexTable = simplexTable;
     }
 
-    public Answer solve() {
+    public Answer solve() throws FunctionNotLimitedException {
         int cols = simplexTable.cols();
         int rows = simplexTable.rows();
         int resCol, resRow;
@@ -24,7 +26,7 @@ public class Problem {
         while (!solved) {
             resCol = simplexTable.findResCol();
             if (resCol == -1) {
-                return new NullAnswer();
+                throw new FunctionNotLimitedException();
             } else {
                 solved = resCol == 0;
 

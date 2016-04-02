@@ -3,25 +3,25 @@ package com.akxcv.jsimplex;
 /**
  * Created by ak on 02.04.16.
  */
-public class Input {
+class Input {
 
     private CostFunction costFunction;
     private Limitation[] limitations;
 
-    public Input(CostFunction costFunction, Limitation[] limitation) {
+    Input(CostFunction costFunction, Limitation[] limitation) {
         this.costFunction = costFunction;
         this.limitations = limitation;
     }
 
-    public CostFunction getCostFunction() {
+    CostFunction getCostFunction() {
         return costFunction;
     }
 
-    public Limitation[] getLimitations() {
+    Limitation[] getLimitations() {
         return limitations;
     }
 
-    public int getLimitationCount() {
+    int getLimitationCount() {
         return limitations.length;
     }
 
