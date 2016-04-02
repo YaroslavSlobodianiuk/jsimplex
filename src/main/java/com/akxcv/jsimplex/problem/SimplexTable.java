@@ -9,7 +9,7 @@ public class SimplexTable {
 
     public SimplexTable(double[][] table) {
         this.table = table;
-        stateList = new ArrayList();
+        stateList = new ArrayList<>();
     }
 
     public int rows() {
@@ -77,39 +77,6 @@ public class SimplexTable {
                 table[i][resCol] /= -table[resRow][resCol];
 
         table[resRow][resCol] = 1 / table[resRow][resCol];
-    }
-
-    public String problemString() {
-        String problem = "\033[1mF(x) = " + Double.toString(-table[rows()][1]) + " * x1";
-
-        for (int i = 2; i <= cols(); i++) {
-            if (Math.signum(-table[rows()][i]) < 0) {
-                problem += " - ";
-            }
-            else {
-                problem += " + ";
-            }
-            problem += Double.toString(Math.abs(table[rows()][i])) + " * x" + Integer.toString(i);
-        }
-
-        problem += " --> max\033[0m\n";
-
-        for (int i = 0; i < rows(); i++) {
-            problem += Double.toString(table[i][1]) + " * x1";
-            for (int j = 2; j <= cols(); j++) {
-                if (Math.signum(table[i][j]) < 0) {
-                    problem += " - ";
-                }
-                else {
-                    problem += " + ";
-                }
-                problem += Double.toString(Math.abs(table[i][j])) + " * x" + Integer.toString(j);
-            }
-            problem += " <= " + Double.toString(table[i][0]) + '\n';
-        }
-        problem += "x_i >= 0, i = 1.." + Integer.toString(cols()) + "\033[0m\n";
-
-        return problem;
     }
 
     public ArrayList<SimplexTable> getStateList() {

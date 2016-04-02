@@ -18,7 +18,7 @@ public class Problem {
         int resCol, resRow;
         int [] rowNames = new int[rows];
         boolean solved = false;
-        Answer answer = new Answer();
+        Answer answer = new Answer(simplexTable);
 
         for (int j = 0; j < rows; j++)
             rowNames[j] = cols + j + 1;

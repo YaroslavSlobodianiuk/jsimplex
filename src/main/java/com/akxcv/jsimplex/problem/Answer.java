@@ -6,8 +6,10 @@ import java.util.LinkedHashMap;
 public class Answer {
 
     private LinkedHashMap<String, Double> items;
+    private SimplexTable simplexTable;
 
-    Answer() {
+    Answer(SimplexTable simplexTable) {
+        this.simplexTable = simplexTable;
         items = new LinkedHashMap<>();
     }
 
@@ -15,8 +17,19 @@ public class Answer {
         items.put(key, value);
     }
 
-    public String toString(boolean integer, boolean asCsv) {
+    public String toString(boolean verbose, boolean integer, boolean asCsv) {
+        String prefix = "";
         String string = "";
+
+        if (verbose) {
+            int step = 1;
+            for (SimplexTable state: simplexTable.getStateList()) {
+                prefix += "Шаг " + step + "\n";
+                prefix += state;
+                step++;
+            }
+            prefix += "\n";
+        }
 
         for (Map.Entry<String, Double> item : items.entrySet()) {
             string += "\n" + item.getKey() + (asCsv ? ", " : " = ");
@@ -26,11 +39,11 @@ public class Answer {
                 string += item.getValue();
         }
 
-        return string.substring(1);
+        return prefix + string.substring(1);
     }
 
     public String toString() {
-        return toString(false, false);
+        return toString(false, false, false);
     }
 
 }

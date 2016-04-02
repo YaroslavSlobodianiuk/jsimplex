@@ -44,6 +44,7 @@ public class Main {
             return;
         }
 
+        printProblem(input);
         Problem problem = createProblem(input);
 
         try {
@@ -238,16 +239,23 @@ public class Main {
         return new Limitation(coefs, sign, freeTerm);
     }
 
+    private static void printProblem(Input input) {
+        System.out.println(input.getCostFunction());
+        for (Limitation l : input.getLimitations())
+            System.out.println(l);
+        System.out.println();
+    }
+
     private static void produceOutput(Answer answer, HashMap options) throws FileNotFoundException {
         if (options.containsKey("output"))
             writeOutputToFile(answer, options);
         else
-            System.out.println(answer.toString((boolean) options.get("integer"), (boolean) options.get("csv")));
+            System.out.println(answer.toString((boolean) options.get("verbose"), (boolean) options.get("integer"), (boolean) options.get("csv")));
     }
 
     private static void writeOutputToFile(Answer answer, HashMap options) throws FileNotFoundException {
         PrintWriter out = new PrintWriter(options.get("output").toString());
-        out.println(answer.toString((boolean) options.get("integer"), (boolean) options.get("csv")));
+        out.println(answer.toString((boolean) options.get("verbose"), (boolean) options.get("integer"), (boolean) options.get("csv")));
         out.close();
     }
 
