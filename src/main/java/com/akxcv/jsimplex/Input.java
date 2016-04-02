@@ -21,4 +21,8 @@ public class Input {
         return limitations;
     }
 
+    public int getLimitationCount() {
+        return limitations.length;
+    }
+
 }

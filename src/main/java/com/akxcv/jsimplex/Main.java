@@ -10,7 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.akxcv.jsimplex.exception.InputException;
-import com.akxcv.jsimplex.exception.LimitationException;
 import com.akxcv.jsimplex.problem.Answer;
 import com.akxcv.jsimplex.problem.Problem;
 import com.akxcv.jsimplex.problem.SimplexTable;
@@ -46,32 +45,10 @@ public class Main {
         Problem problem = createProblem(input);
 
         Answer answer = problem.solve();
-
-        /*
-
-		String input, output;
-
-		// Имя входного файла
-		if (line.hasOption("input"))
-            input = line.getOptionValue("input");
-		else
-			input = null;
-
-
-        output = perform(input, line.hasOption("verbose"), line.hasOption("integer"), line.hasOption("csv"), line.hasOption("min"));
-
-	    // Вывод
-		if (line.hasOption("output")) {
-			try( PrintWriter out = new PrintWriter(line.getOptionValue("output")) ) {
-				out.println(output);
-			}
-		} else {
-			System.out.println(output);
-		}*/
     }
 
     private static Problem createProblem(Input input) {
-        int rows = input.getLimitations().length + 1;
+        int rows = input.getLimitationCount() + 1;
         int cols = input.getCostFunction().getCoefCount() + 1;
         double [][] table = new double[rows][cols];
 
@@ -85,7 +62,7 @@ public class Main {
                 table[i][j] = input.getLimitations()[i].getCoef(j - 1);
         }
 
-        for (int i = 0; i < rows; ++i) {
+        for (int i = 0; i < rows - 1; ++i) {
             table[i][0] = input.getLimitations()[i].getFreeTerm();
         }
 
@@ -138,7 +115,7 @@ public class Main {
 		return optionHash;
 	}
 
-    private static Input getUserInput(HashMap options) throws FileNotFoundException, LimitationException, InputException {
+    private static Input getUserInput(HashMap options) throws FileNotFoundException, InputException, InputException {
         if (options.containsKey("input")) {
             return getUserFileInput(options.get("input").toString());
         } else {
@@ -146,7 +123,7 @@ public class Main {
         }
     }
 
-    private static Input getUserFileInput(String fileName) throws LimitationException, FileNotFoundException {
+    private static Input getUserFileInput(String fileName) throws InputException, FileNotFoundException {
         Scanner scanner = new Scanner(new File(fileName)).useLocale(new Locale("US"));
 
         String line = scanner.nextLine();
@@ -162,7 +139,7 @@ public class Main {
         return new Input(costFunction, limitations.toArray(new Limitation[0]));
     }
 
-    private static Input getUserKeyboardInput() throws InputException, LimitationException {
+    private static Input getUserKeyboardInput() throws InputException, InputException {
         Scanner scanner = new Scanner(System.in).useLocale(new Locale("US"));
 
         String line;
@@ -174,7 +151,7 @@ public class Main {
         line = scanner.nextLine();
 
         if (line.isEmpty()) {
-            throw new InputException("Пустой ввод.");
+            throw new InputException("Пустой ввод");
         }
 
         costFunction = stringToCostFunction(line);
@@ -190,8 +167,12 @@ public class Main {
         return new Input(costFunction, limitations.toArray(new Limitation[0]));
     }
 
-    private static CostFunction stringToCostFunction(String string) {
+    private static CostFunction stringToCostFunction(String string) throws InputException {
         string = string.replaceAll("\\s", "");
+
+        if (!string.contains("->") || !(string.contains("min") || string.contains("max")))
+            throw new InputException("Не задано направление оптимизации");
+
         String[] atoms = string.split("\\-\\->|\\->|(?=\\+)|(?=\\-)");
         Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
 
@@ -209,17 +190,20 @@ public class Main {
         return new CostFunction(coefs, atoms[coefsCount - 1].equals("min"));
     }
 
-    private static Limitation stringToLimitation(String string) throws LimitationException {
+    private static Limitation stringToLimitation(String string) throws InputException {
         Limitation.LimitationSign sign;
 
         if (string.contains("<=")) {
             if (string.contains(">="))
-                throw new LimitationException("Неверный знак ограничения");
+                throw new InputException("Неверный знак ограничения");
             sign = Limitation.LimitationSign.LE;
         } else if (string.contains(">=")) {
             sign = Limitation.LimitationSign.ME;
         } else
             sign = Limitation.LimitationSign.EQ;
+
+        if (!string.contains("="))
+            throw new InputException("Не указан знак ограничения");
 
         string = string.replaceAll("\\s|<|>", "");
         String[] atoms = string.split("=|(?=\\+)|(?=\\-)");
