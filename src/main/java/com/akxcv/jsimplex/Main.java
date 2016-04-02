@@ -9,6 +9,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.akxcv.jsimplex.exception.InputException;
 import com.akxcv.jsimplex.exception.LimitationException;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
@@ -29,11 +30,19 @@ public class Main {
             return;
         }
 
+        Input input = null;
         try {
-            Input input = getUserInput(options);
+            input = getUserInput(options);
         } catch (Exception e) {
             System.out.println(e.getMessage());
+            if (options.containsKey("debug") && options.get("debug").equals(true))
+                e.printStackTrace();
             return;
+        }
+
+        System.out.println(input.getCostFunction());
+        for (Limitation l : input.getLimitations()) {
+            System.out.println(l);
         }
 
         /*
@@ -79,12 +88,9 @@ public class Main {
         options.addOption( OptionBuilder.withLongOpt("csv")
                                         .withDescription("запись в csv-файл")
                                         .create("c") );
-        options.addOption( OptionBuilder.withLongOpt("min")
-                                        .withDescription("минимизировать целевую функцию")
-                                        .create() );
-        options.addOption( OptionBuilder.withLongOpt("max")
-                                        .withDescription("максимизировать целевую функцию")
-                                        .create() );
+        options.addOption( OptionBuilder.withLongOpt("debug")
+                                        .withDescription("режим отладки")
+                                        .create("d") );
 
 		CommandLine line = parser.parse(options, args);
 		HashMap<String, Object>  optionHash = new HashMap<>();
@@ -103,27 +109,60 @@ public class Main {
 		optionHash.put("integer", line.hasOption("integer"));
 		optionHash.put("csv", line.hasOption("csv"));
 		optionHash.put("min", line.hasOption("min"));
+        optionHash.put("debug", line.hasOption("debug"));
 		
 		return optionHash;
 	}
 
-    private static Input getUserInput(HashMap options) throws FileNotFoundException, LimitationException {
-        CostFunction costFunction = null;
-        ArrayList<Limitation> limitations = new ArrayList<>();
-
+    private static Input getUserInput(HashMap options) throws FileNotFoundException, LimitationException, InputException {
         if (options.containsKey("input")) {
-            Scanner scanner = new Scanner(new File(options.get("input").toString())).useLocale(new Locale("US"));
+            return getUserFileInput(options.get("input").toString());
+        } else {
+            return getUserKeyboardInput();
+        }
+    }
 
-            String line = scanner.nextLine();
-            costFunction = stringToCostFunction(line);
+    private static Input getUserFileInput(String fileName) throws LimitationException, FileNotFoundException {
+        Scanner scanner = new Scanner(new File(fileName)).useLocale(new Locale("US"));
 
-            while (scanner.hasNextLine()) {
-                line = scanner.nextLine();
+        String line = scanner.nextLine();
+        ArrayList<Limitation> limitations = new ArrayList<>();
+        CostFunction costFunction = stringToCostFunction(line);
+
+        while (scanner.hasNextLine()) {
+            line = scanner.nextLine();
+            if (!line.isEmpty())
                 limitations.add(stringToLimitation(line));
-            }
         }
 
-        // STUB
+        return new Input(costFunction, limitations.toArray(new Limitation[0]));
+    }
+
+    private static Input getUserKeyboardInput() throws InputException, LimitationException {
+        Scanner scanner = new Scanner(System.in).useLocale(new Locale("US"));
+
+        String line;
+        CostFunction costFunction;
+        ArrayList<Limitation> limitations = new ArrayList<>();
+
+        System.out.println("Введите условие задачи. Для окончания ввода нажмите Enter в пустой строке.");
+        System.out.print("Целевая функция: ");
+        line = scanner.nextLine();
+
+        if (line.isEmpty()) {
+            throw new InputException("Пустой ввод.");
+        }
+
+        costFunction = stringToCostFunction(line);
+
+        while(true) {
+            System.out.print("Ограничение: ");
+            line = scanner.nextLine();
+            if (line.isEmpty())
+                break;
+            limitations.add(stringToLimitation(line));
+        }
+
         return new Input(costFunction, limitations.toArray(new Limitation[0]));
     }
 
@@ -143,18 +182,17 @@ public class Main {
             coefsCount++;
         }
 
-        return new CostFunction(coefs, atoms[coefsCount].equals("min"));
+        return new CostFunction(coefs, atoms[coefsCount - 1].equals("min"));
     }
 
     private static Limitation stringToLimitation(String string) throws LimitationException {
         Limitation.LimitationSign sign;
 
-        if (string.contains("<="))
-            sign = Limitation.LimitationSign.LE;
-
-        if (string.contains(">=")) {
-            if (string.contains("<="))
+        if (string.contains("<=")) {
+            if (string.contains(">="))
                 throw new LimitationException("Неверный знак ограничения");
+            sign = Limitation.LimitationSign.LE;
+        } else if (string.contains(">=")) {
             sign = Limitation.LimitationSign.ME;
         } else
             sign = Limitation.LimitationSign.EQ;
@@ -174,7 +212,8 @@ public class Main {
                     coefs[coefsCount] = Double.parseDouble(m.group(0));
                 coefsCount++;
             } else {
-                freeTerm = Double.parseDouble(m.group(0));
+                if (m.find())
+                    freeTerm = Double.parseDouble(m.group(0));
             }
         }
 

@@ -17,11 +17,13 @@ public class Limitation {
 	public String toString() {
 		String string = coefs[0] + "x" + 1 + " ";
 		
-		for (int i = 0; i < coefs.length; i++) {
+		for (int i = 1; i < coefs.length; i++) {
 			if (coefs[i] != 0) {
-				if (Math.signum(coefs[i]) > 0)
-					string += "+";
-				string += coefs[i] + "x" + (i+1) + " ";
+				if (Math.signum(coefs[i]) >= 0)
+					string += "+ ";
+				else
+					string += "- ";
+				string += Math.abs(coefs[i]) + "x" + (i+1) + " ";
 			}
 		}
 		
