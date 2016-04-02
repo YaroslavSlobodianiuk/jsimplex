@@ -10,6 +10,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.akxcv.jsimplex.exception.LimitationException;
+import com.akxcv.jsimplex.problem.Answer;
+import com.akxcv.jsimplex.problem.Problem;
+import com.akxcv.jsimplex.problem.SimplexTable;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.PosixParser;
@@ -29,12 +32,18 @@ public class Main {
             return;
         }
 
+        Input input = null;
         try {
-            Input input = getUserInput(options);
+            input = getUserInput(options);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
         }
+
+        Problem problem = createProblem(input);
+
+        Answer answer = problem.solve();
+
 
         /*
 
@@ -57,6 +66,28 @@ public class Main {
 		} else {
 			System.out.println(output);
 		}*/
+    }
+
+    public static Problem createProblem(Input input) {
+        int rows = input.getLimitations().length + 1;
+        int cols = input.getCostFunction().getCoefCount() + 1;
+        double [][] table = new double[rows][cols];
+
+        table[rows - 1][0] = 0;
+        for (int i = 1; i < cols; ++i) {
+            table[rows - 1][i] = -input.getCostFunction().getCoef(i - 1);
+        }
+
+        for (int i = 0; i < rows - 1; ++i) {
+            for (int j = 1; j < cols; ++j)
+                table[i][j] = input.getLimitations()[i].getCoef(j - 1);
+        }
+
+        for (int i = 0; i < rows; ++i) {
+            table[i][0] = input.getLimitations()[i].getFreeTerm();
+        }
+
+        return new Problem(new SimplexTable(table));
     }
 	
 	private static HashMap<String, Object> parseCommandLine(String[] args) throws ParseException {
