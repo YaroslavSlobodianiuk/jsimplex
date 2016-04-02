@@ -26,7 +26,7 @@ public class Answer {
                 string += item.getValue();
         }
 
-        return string;
+        return string.substring(1);
     }
 
     public String toString() {
