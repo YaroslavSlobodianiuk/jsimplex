@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
 import com.akxcv.jsimplex.exception.InputException;
 import com.akxcv.jsimplex.problem.*;
-
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.PosixParser;
@@ -41,7 +40,7 @@ public class Main {
         }
 
         Problem problem = createProblem(input);
-        System.out.println(problem + "\n");
+        System.out.println(problem);
 
         try {
             produceOutput(problem.solve(), options);
@@ -199,8 +198,6 @@ public class Main {
         int coefsCount = 0;
 
         for (String atom : atoms) {
-            if (atom.isEmpty())
-                continue;
             Matcher m = p.matcher(atom);
             if (m.find())
                 coefs[coefsCount] = Double.parseDouble(m.group(0));
@@ -239,8 +236,6 @@ public class Main {
         double freeTerm = 0d;
 
         for (String atom : atoms) {
-            if (atom.isEmpty())
-                continue;
             Matcher m = p.matcher(atom);
             if (coefsCount != atoms.length - 1) {
                 if (m.find())

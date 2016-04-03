@@ -25,10 +25,9 @@ public class Answer {
             int step = 1;
             for (SimplexTable state: simplexTable.getStateList()) {
                 prefix += "Шаг " + step + "\n";
-                prefix += state;
+                prefix += state + "\n";
                 step++;
             }
-            prefix += "\n";
         }
 
         for (Map.Entry<String, Double> item : items.entrySet()) {

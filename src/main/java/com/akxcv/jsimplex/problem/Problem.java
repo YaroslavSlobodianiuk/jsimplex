@@ -84,9 +84,9 @@ public class Problem {
     public String toString() {
         String result = "";
 
-        result += costFunction;
+        result += costFunction + "\n";
         for (Limitation l : limitations)
-            result += l;
+            result += l + "\n";
 
         return result;
     }
