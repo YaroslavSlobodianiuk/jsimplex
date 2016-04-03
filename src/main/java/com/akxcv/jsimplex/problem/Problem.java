@@ -6,6 +6,7 @@ import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
  * Created by evgeny on 02.04.16.
  */
 public class Problem {
+
     private SimplexTable simplexTable;
 
     public Problem(SimplexTable simplexTable) {
@@ -13,42 +14,53 @@ public class Problem {
     }
 
     public Answer solve() throws FunctionNotLimitedException {
-        int cols = simplexTable.cols();
+        int col, resRow, resCol;
+        boolean solved = false, firstStepIsDone = false;
         int rows = simplexTable.rows();
-        int resCol, resRow;
-        int [] rowNames = new int[rows];
-        boolean solved = false;
-        Answer answer = new Answer(simplexTable);
+        int cols = simplexTable.cols();
+        int[] rowId = new int[rows - 1];
+        int[] colId = new int[cols - 1];
 
-        for (int j = 0; j < rows; j++)
-            rowNames[j] = cols + j + 1;
+        for (int i = 0; i < cols - 1; ++i) { colId[i] = i + 1; }
+        for (int i = 0; i < rows - 1; ++i) { rowId[i] = i + cols; }
 
         while (!solved) {
-            resCol = simplexTable.findResCol();
-            if (resCol == -1) {
-                throw new FunctionNotLimitedException();
+            if(!firstStepIsDone) {
+                col = simplexTable.findCol();
+                if (col == 0) {
+                    firstStepIsDone = true;
+                } else {
+                    resRow = simplexTable.findResRow(col);
+                    if (resRow == -1) {
+                        throw new FunctionNotLimitedException("Решений нет");
+                    } else {
+                        resCol = simplexTable.findResCol(resRow);
+                        rowId[resRow] += colId[resCol - 1];
+                        colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
+                        rowId[resRow] -= colId[resCol - 1];
+                        simplexTable.step(resRow, resCol);
+                    }
+                }
             } else {
-                solved = resCol == 0;
-
-                if (!solved) {
-                    resRow = simplexTable.findResRow(resCol);
-                    rowNames[resRow] = resCol;
-                    simplexTable.step(resRow, resCol);
+                resRow = simplexTable.findResRow();
+                if (resRow == -1) {
+                    solved = true;
+                } else {
+                    resCol = simplexTable.findResColModifited(resRow);
+                    if (resCol == -1) {
+                        throw new FunctionNotLimitedException("Решений нет");
+                    } else {
+                        rowId[resRow] += colId[resCol - 1];
+                        colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
+                        rowId[resRow] -= colId[resCol - 1];
+                        simplexTable.step(resRow, resCol);
+                    }
                 }
             }
         }
 
-        for (int i = 1; i <= cols; i++) {
-            int j = 0;
-            for (; j < rows && rowNames[j] != i; j++);
-            if (j == rows)
-                answer.addItem("x" + i, 0);
-            else
-                answer.addItem("x" + i, simplexTable.getElement(j, 0));
-        }
-
-        answer.addItem("max{ F(x) }", simplexTable.getElement(rows, 0));
-
-        return answer;
+        System.out.println("ANS: \n" + simplexTable);
+        return new Answer(null);
     }
+
 }

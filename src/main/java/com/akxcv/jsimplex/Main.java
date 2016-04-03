@@ -25,7 +25,7 @@ import org.apache.commons.cli.ParseException;
 public class Main {
 
     public static void main(String[] args) {
-        HashMap options = null;
+        HashMap options;
 
         try {
             options = parseCommandLine(args);
@@ -34,7 +34,7 @@ public class Main {
             return;
         }
 
-        Input input = null;
+        Input input;
         try {
             input = getUserInput(options);
         } catch (Exception e) {
@@ -48,14 +48,19 @@ public class Main {
         Problem problem = createProblem(input);
 
         try {
-            produceOutput(problem.solve(), options);
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-            if (options.containsKey("debug") && options.get("debug").equals(true))
-                e.printStackTrace();
+            problem.solve();
         } catch (FunctionNotLimitedException e) {
-            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
+//        try {
+//            produceOutput(problem.solve(), options);
+//        } catch (FileNotFoundException e) {
+//            System.out.println(e.getMessage());
+//            if (options.containsKey("debug") && options.get("debug").equals(true))
+//                e.printStackTrace();
+//        } catch (FunctionNotLimitedException e) {
+//            System.out.println(e.getMessage());
+//        }
     }
 
     private static Problem createProblem(Input input) {
