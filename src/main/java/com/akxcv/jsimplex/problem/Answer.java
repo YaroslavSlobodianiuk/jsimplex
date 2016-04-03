@@ -13,7 +13,7 @@ public class Answer {
         items = new LinkedHashMap<>();
     }
 
-    void addItem(String key, double value) {
+    protected void addItem(String key, double value) {
         items.put(key, value);
     }
 

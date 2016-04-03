@@ -12,19 +12,19 @@ public class SimplexTable {
         stateList = new ArrayList<>();
     }
 
-    public int rows() {
+    protected int rows() {
         return table.length - 1;
     }
 
-    public int cols() {
+    protected int cols() {
         return table[0].length - 1;
     }
 
-    public double getElement(int row, int column) {
+    protected double getElement(int row, int column) {
         return table[row][column];
     }
 
-    public int findResCol() {
+    protected int findResCol() {
         int resCol = 0;
 
         for (int i = 1; i <= cols(); i++)
@@ -40,7 +40,7 @@ public class SimplexTable {
         return resCol;
     }
 
-    public int findResRow(int resCol) {
+    protected int findResRow(int resCol) {
         if (resCol < 0)
             return -1;
 
@@ -59,7 +59,7 @@ public class SimplexTable {
         return resRow;
     }
 
-    public void step(int resRow, int resCol) {
+    protected void step(int resRow, int resCol) {
         stateList.add(new SimplexTable(table));
 
         for (int i = 0; i <= rows(); i++)
@@ -79,7 +79,7 @@ public class SimplexTable {
         table[resRow][resCol] = 1 / table[resRow][resCol];
     }
 
-    public ArrayList<SimplexTable> getStateList() {
+    protected ArrayList<SimplexTable> getStateList() {
         return stateList;
     }
 
@@ -87,7 +87,7 @@ public class SimplexTable {
         return toString(true);
     }
 
-    public String toString(boolean shouldFindResElement) {
+    protected String toString(boolean shouldFindResElement) {
         String string = "";
 
         for (int i = 0; i <= rows(); i++) {

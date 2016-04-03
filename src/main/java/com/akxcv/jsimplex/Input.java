@@ -8,20 +8,20 @@ class Input {
     private CostFunction costFunction;
     private Limitation[] limitations;
 
-    Input(CostFunction costFunction, Limitation[] limitation) {
+    public Input(CostFunction costFunction, Limitation[] limitation) {
         this.costFunction = costFunction;
         this.limitations = limitation;
     }
 
-    CostFunction getCostFunction() {
+    public CostFunction getCostFunction() {
         return costFunction;
     }
 
-    Limitation[] getLimitations() {
+    public Limitation[] getLimitations() {
         return limitations;
     }
 
-    int getLimitationCount() {
+    public int getLimitationCount() {
         return limitations.length;
     }
 

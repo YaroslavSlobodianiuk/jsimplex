@@ -4,8 +4,8 @@ class CostFunction {
 	
 	private double[] coefs;
 	private boolean minimize;
-	
-	CostFunction(double[] coefs, boolean minimize) {
+
+	public CostFunction(double[] coefs, boolean minimize) {
 		this.coefs = coefs;
 		this.minimize = minimize;
 	}
@@ -27,17 +27,13 @@ class CostFunction {
 		
 		return string;
 	}
-	
-	double getCoef(int number) {
+
+	public double getCoef(int number) {
 		return coefs[number];
 	}
-	
-	int getCoefCount() {
+
+	public int getCoefCount() {
 		return coefs.length;
-	}
-	
-	public boolean shouldBeMinimized() {
-		return minimize;
 	}
 	
 }
