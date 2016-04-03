@@ -3,16 +3,14 @@ package com.akxcv.jsimplex;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
 import com.akxcv.jsimplex.exception.InputException;
 import com.akxcv.jsimplex.problem.*;
+
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.PosixParser;
@@ -191,13 +189,18 @@ public class Main {
         if (!string.contains("->") || !(string.contains("min") || string.contains("max")))
             throw new InputException("Не задано направление оптимизации");
 
-        String[] atoms = string.split("\\-\\->|\\->|(?=\\+)|(?=\\-)");
+        ArrayList<String> atomsList = new ArrayList<>(Arrays.asList(string.split("\\-\\->|\\->|(?=\\+)|(?=\\-)")));
+        atomsList.removeAll(Arrays.asList("", null));
+        String[] atoms = atomsList.toArray(new String[0]);
+
         Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
 
         double[] coefs = new double[atoms.length - 1];
         int coefsCount = 0;
 
         for (String atom : atoms) {
+            if (atom.isEmpty())
+                continue;
             Matcher m = p.matcher(atom);
             if (m.find())
                 coefs[coefsCount] = Double.parseDouble(m.group(0));
@@ -224,7 +227,11 @@ public class Main {
             throw new InputException("Не указан знак ограничения");
 
         string = string.replaceAll("\\s|<|>", "");
-        String[] atoms = string.split("=|(?=\\+)|(?=\\-)");
+
+        ArrayList<String> atomsList = new ArrayList<>(Arrays.asList(string.split("=|(?=\\+)|(?=\\-)")));
+        atomsList.removeAll(Arrays.asList("", null));
+        String[] atoms = atomsList.toArray(new String[0]);
+
         Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
 
         double[] coefs = new double[atoms.length - 1];
@@ -232,6 +239,8 @@ public class Main {
         double freeTerm = 0d;
 
         for (String atom : atoms) {
+            if (atom.isEmpty())
+                continue;
             Matcher m = p.matcher(atom);
             if (coefsCount != atoms.length - 1) {
                 if (m.find())
@@ -259,9 +268,4 @@ public class Main {
         out.close();
     }
 
-/*
-    private static String highlight(String line) {
-        return "\033[7m" + line + "\033[0m";
-    }
-*/
 }

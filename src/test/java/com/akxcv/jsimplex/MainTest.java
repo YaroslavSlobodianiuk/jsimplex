@@ -4,6 +4,8 @@ import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
 import com.akxcv.jsimplex.problem.Problem;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.FileFilter;
 import java.io.IOException;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -83,59 +85,12 @@ public class MainTest {
     
     private File[] getDirectoryFileList(String dir) {
         File fixturesDir = new File(FIXTURES_DIR + dir);
-        return fixturesDir.listFiles();
+        return fixturesDir.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File pathname) {
+                return pathname.isFile();
+            }
+        });
     }
-
-	/*@Test
-	public void fileNotFound() {
-		assertEquals("Файл не найден: idontexist.txt", Main.perform("idontexist.txt"));
-	}
-
-	@Test
-	public void defaultTest() throws IOException {
-		testDirectory("default");
-	}
-
-	@Test
-	public void integerTest() throws IOException {
-		testDirectory("integer", true, false, false);
-	}
-
-	@Test
-	public void csvTest() throws IOException {
-		testDirectory("csv", false, true, false);
-	}
-
-	// @Test
-	// public void minimizeTest() throws IOException {
-	// 	testDirectory("minimize", false, false, true);
-	// }
-
-	private void testDirectory(String dir, boolean integer, boolean csv, boolean minimize) throws IOException {
-		File fixturesDir = new File(FIXTURES_DIR + dir);
-	  	File[] fixtures = fixturesDir.listFiles();
-
-	  	if (fixtures != null)
-			for (File fixture : fixtures)
-				testFixture(dir, fixture, integer, csv, minimize);
-	}
-
-	private void testDirectory(String dir) throws IOException {
-		testDirectory(dir, false, false, false);
-	}
-
-	private void testFixture(String dir, File fixture, boolean integer, boolean csv, boolean minimize) throws IOException {
-		SimplexTable simplexTable = new SimplexTable(Main.createSimplexTable(fixture.getPath(), minimize));
-		assertEquals(output(dir, fixture.getName()).trim(), Main.solve(simplexTable).toString(integer, csv).trim());
-	}
-
-	private String output(String dir, String fileName) {
-		try {
-			byte[] encoded = Files.readAllBytes(Paths.get(OUTPUTS_DIR + dir + "/" + fileName));
-			return new String(encoded, StandardCharsets.UTF_8);
-		} catch (IOException e) {
-			return "";
-		}
-	}*/
 
 }

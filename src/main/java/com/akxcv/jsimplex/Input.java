@@ -13,6 +13,7 @@ class Input {
 
     public Input(CostFunction costFunction, Limitation[] limitation) {
         this.costFunction = costFunction;
+
         this.limitations = limitation;
     }
 
