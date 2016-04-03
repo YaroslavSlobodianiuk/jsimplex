@@ -48,19 +48,14 @@ public class Main {
         Problem problem = createProblem(input);
 
         try {
-            problem.solve();
-        } catch (FunctionNotLimitedException e) {
-            e.printStackTrace();
+            produceOutput(problem.solve(), options);
+        } catch (FileNotFoundException e) {
+           System.out.println(e.getMessage());
+           if (options.containsKey("debug") && options.get("debug").equals(true))
+               e.printStackTrace();
+        }  catch (FunctionNotLimitedException e) {
+           System.out.println(e.getMessage());
         }
-//        try {
-//            produceOutput(problem.solve(), options);
-//        } catch (FileNotFoundException e) {
-//            System.out.println(e.getMessage());
-//            if (options.containsKey("debug") && options.get("debug").equals(true))
-//                e.printStackTrace();
-//        } catch (FunctionNotLimitedException e) {
-//            System.out.println(e.getMessage());
-//        }
     }
 
     private static Problem createProblem(Input input) {
@@ -70,16 +65,25 @@ public class Main {
 
         table[rows - 1][0] = 0;
         for (int i = 1; i < cols; ++i) {
-            table[rows - 1][i] = -input.getCostFunction().getCoef(i - 1);
+            if (input.getCostFunction().shouldBeMinimazed())
+                table[rows - 1][i] = input.getCostFunction().getCoef(i - 1);
+            else
+                table[rows - 1][i] = -input.getCostFunction().getCoef(i - 1);
         }
 
         for (int i = 0; i < rows - 1; ++i) {
             for (int j = 1; j < cols; ++j)
-                table[i][j] = input.getLimitations()[i].getCoef(j - 1);
+                if (input.getLimitations()[i].getSign() == Limitation.LimitationSign.GE)
+                    table[i][j] = -input.getLimitations()[i].getCoef(j - 1);
+                else
+                    table[i][j] = input.getLimitations()[i].getCoef(j - 1);
         }
 
         for (int i = 0; i < rows - 1; ++i) {
-            table[i][0] = input.getLimitations()[i].getFreeTerm();
+            if (input.getLimitations()[i].getSign() == Limitation.LimitationSign.GE)
+                table[i][0] = -input.getLimitations()[i].getFreeTerm();
+            else
+                table[i][0] = input.getLimitations()[i].getFreeTerm();
         }
 
         return new Problem(new SimplexTable(table));
@@ -214,7 +218,7 @@ public class Main {
                 throw new InputException("Неверный знак ограничения");
             sign = Limitation.LimitationSign.LE;
         } else if (string.contains(">=")) {
-            sign = Limitation.LimitationSign.ME;
+            sign = Limitation.LimitationSign.GE;
         } else
             sign = Limitation.LimitationSign.EQ;
 

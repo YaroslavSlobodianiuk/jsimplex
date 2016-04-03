@@ -2,7 +2,7 @@ package com.akxcv.jsimplex;
 
 class Limitation {
 
-	public enum LimitationSign { LE, EQ, ME }
+	public enum LimitationSign { LE, EQ, GE }
 	
 	private double[] coefs;
 	private LimitationSign sign;
@@ -37,7 +37,7 @@ class Limitation {
 			string += "= ";
 			break;
 			
-			case ME:
+			case GE:
 			string += ">= ";
 			break;
 			

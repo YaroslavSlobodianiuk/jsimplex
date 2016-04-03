@@ -35,5 +35,7 @@ class CostFunction {
 	public int getCoefCount() {
 		return coefs.length;
 	}
+
+	public boolean shouldBeMinimazed() {return minimize;}
 	
 }

@@ -13,11 +13,11 @@ public class SimplexTable {
     }
 
     protected int rows() {
-        return table.length - 1;
+        return table.length;
     }
 
     protected int cols() {
-        return table[0].length - 1;
+        return table[0].length;
     }
 
     protected double getElement(int row, int column) {
@@ -88,17 +88,17 @@ public class SimplexTable {
     protected void step(int resRow, int resCol) {
         stateList.add(new SimplexTable(table));
 
-        for (int i = 0; i <= rows(); i++)
+        for (int i = 0; i < rows(); i++)
             if (i != resRow)
-                for (int j = 0; j <= cols(); j++)
+                for (int j = 0; j < cols(); j++)
                     if (j != resCol)
                         table[i][j] -= table[resRow][j] * table[i][resCol] / table[resRow][resCol];
 
-        for (int j = 0; j <= cols(); j++)
+        for (int j = 0; j < cols(); j++)
             if (j != resCol)
                 table[resRow][j] /= table[resRow][resCol];
 
-        for (int i = 0; i <= rows(); ++i)
+        for (int i = 0; i < rows(); ++i)
             if (i != resRow)
                 table[i][resCol] /= -table[resRow][resCol];
 
@@ -134,9 +134,9 @@ public class SimplexTable {
     protected String toString(boolean shouldFindResElement) {
         String string = "";
 
-        for (int i = 0; i <= rows(); i++) {
+        for (int i = 0; i < rows(); i++) {
 
-            for (int j = 0; j <= cols(); j++) {
+            for (int j = 0; j < cols(); j++) {
 
                 if (shouldFindResElement) {
                     int resCol = findCol();

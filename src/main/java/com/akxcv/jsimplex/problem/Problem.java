@@ -59,8 +59,20 @@ public class Problem {
             }
         }
 
-        System.out.println("ANS: \n" + simplexTable);
-        return new Answer(null);
+        Answer answer = new Answer(simplexTable);
+
+        for (int i = 1; i < cols; i++) {
+            int j = 0;
+            for (; j < rows - 1 && rowId[j] != i; j++);
+            if (j == rows - 1)
+                answer.addItem("x" + i, 0);
+            else
+                answer.addItem("x" + i, simplexTable.getElement(j, 0));
+        }
+
+        answer.addItem("max{ F(x) }", simplexTable.getElement(rows - 1, 0));
+
+        return answer;
     }
 
 }
