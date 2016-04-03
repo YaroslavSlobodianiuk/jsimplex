@@ -33,7 +33,7 @@ public class MainTest {
         createProblem.setAccessible(true);
 
         dummyInput = new Input(null, null);
-        dummyProblem = new Problem(null);
+        dummyProblem = new Problem(null, null, null);
     }
 
     @Test

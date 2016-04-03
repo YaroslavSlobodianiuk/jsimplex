@@ -8,9 +8,13 @@ import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
 public class Problem {
 
     private SimplexTable simplexTable;
+    private CostFunction costFunction;
+    private Limitation[] limitations;
 
-    public Problem(SimplexTable simplexTable) {
+    public Problem(SimplexTable simplexTable, CostFunction costFunction, Limitation[] limitations) {
         this.simplexTable = simplexTable;
+        this.costFunction = costFunction;
+        this.limitations = limitations;
     }
 
     public Answer solve() throws FunctionNotLimitedException {
@@ -70,9 +74,21 @@ public class Problem {
                 answer.addItem("x" + i, simplexTable.getElement(j, 0));
         }
 
-        answer.addItem("max{ F(x) }", simplexTable.getElement(rows - 1, 0));
+        String optimizationDirection = costFunction.shouldBeMinimized() ? "min" : "max";
+        double costFunctionValue = (costFunction.shouldBeMinimized() ? -1 : 1) * simplexTable.getElement(rows - 1, 0);
+        answer.addItem(optimizationDirection + "{ F(x) }", costFunctionValue);
 
         return answer;
+    }
+
+    public String toString() {
+        String result = "";
+
+        result += costFunction;
+        for (Limitation l : limitations)
+            result += l;
+
+        return result;
     }
 
 }

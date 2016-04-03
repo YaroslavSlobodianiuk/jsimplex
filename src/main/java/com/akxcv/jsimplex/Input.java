@@ -1,5 +1,8 @@
 package com.akxcv.jsimplex;
 
+import com.akxcv.jsimplex.problem.CostFunction;
+import com.akxcv.jsimplex.problem.Limitation;
+
 /**
  * Created by ak on 02.04.16.
  */

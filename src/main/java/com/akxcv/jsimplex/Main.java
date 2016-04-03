@@ -12,9 +12,7 @@ import java.util.regex.Pattern;
 
 import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
 import com.akxcv.jsimplex.exception.InputException;
-import com.akxcv.jsimplex.problem.Answer;
-import com.akxcv.jsimplex.problem.Problem;
-import com.akxcv.jsimplex.problem.SimplexTable;
+import com.akxcv.jsimplex.problem.*;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.PosixParser;
@@ -44,8 +42,8 @@ public class Main {
             return;
         }
 
-        printProblem(input);
         Problem problem = createProblem(input);
+        System.out.println(problem + "\n");
 
         try {
             produceOutput(problem.solve(), options);
@@ -65,7 +63,7 @@ public class Main {
 
         table[rows - 1][0] = 0;
         for (int i = 1; i < cols; ++i) {
-            if (input.getCostFunction().shouldBeMinimazed())
+            if (input.getCostFunction().shouldBeMinimized())
                 table[rows - 1][i] = input.getCostFunction().getCoef(i - 1);
             else
                 table[rows - 1][i] = -input.getCostFunction().getCoef(i - 1);
@@ -86,7 +84,7 @@ public class Main {
                 table[i][0] = input.getLimitations()[i].getFreeTerm();
         }
 
-        return new Problem(new SimplexTable(table));
+        return new Problem(new SimplexTable(table), input.getCostFunction(), input.getLimitations());
     }
 	
 	private static HashMap<String, Object> parseCommandLine(String[] args) throws ParseException {
@@ -246,13 +244,6 @@ public class Main {
         }
 
         return new Limitation(coefs, sign, freeTerm);
-    }
-
-    private static void printProblem(Input input) {
-        System.out.println(input.getCostFunction());
-        for (Limitation l : input.getLimitations())
-            System.out.println(l);
-        System.out.println();
     }
 
     private static void produceOutput(Answer answer, HashMap options) throws FileNotFoundException {

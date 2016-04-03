@@ -103,24 +103,6 @@ public class SimplexTable {
                 table[i][resCol] /= -table[resRow][resCol];
 
         table[resRow][resCol] = 1 / table[resRow][resCol];
-
-        /*
-        for (int i = 0; i < rows; ++i)
-        if (i != resRow)
-            for (int j = 0; j < cols; ++j)
-                if (j != resCol)
-                    simplexTable[i][j] -= simplexTable[resRow][j] * simplexTable[i][resCol] / simplexTable[resRow][resCol];
-
-    for (int j = 0; j < cols; ++j)
-        if (j != resCol)
-            simplexTable[resRow][j] /= simplexTable[resRow][resCol];
-
-    for (int i = 0; i < rows; ++i)
-        if (i != resRow)
-            simplexTable[i][resCol] /= -simplexTable[resRow][resCol];
-
-    simplexTable[resRow][resCol] = 1 / simplexTable[resRow][resCol];
-         */
     }
 
     protected ArrayList<SimplexTable> getStateList() {

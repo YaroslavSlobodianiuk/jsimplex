@@ -1,6 +1,6 @@
-package com.akxcv.jsimplex;
+package com.akxcv.jsimplex.problem;
 
-class CostFunction {
+public class CostFunction {
 	
 	private double[] coefs;
 	private boolean minimize;
@@ -36,6 +36,6 @@ class CostFunction {
 		return coefs.length;
 	}
 
-	public boolean shouldBeMinimazed() {return minimize;}
+	public boolean shouldBeMinimized() {return minimize;}
 	
 }
