@@ -35,7 +35,7 @@ public class Answer {
             if (integer)
                 string += (int) Math.floor(item.getValue());
             else
-                string += item.getValue();
+                string += String.format("%." + 5 + "f", item.getValue());
         }
 
         return prefix + string.substring(1);

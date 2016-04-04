@@ -39,12 +39,13 @@ public class SimplexTable {
         for (int i = 1; i < cols(); ++i) {
             if (strict ? (table[resRow][i] != 0) : (table[resRow][i] < 0) ) {
                 r = table[rows() - 1][i] / table[resRow][i];
-                if ( r <= 0 && (firstRatio || r > maxR) ) {
+                if (strict ? (r < 0) : (r <= 0) && (firstRatio || r > maxR) ) {
                     firstRatio = false;
                     maxR = r;
                     resCol = i;
                 }
             }
+
         }
 
         return resCol;
