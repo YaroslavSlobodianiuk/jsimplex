@@ -41,7 +41,7 @@ public class Main {
         }
 
         Problem problem = createProblem(input);
-        if (!options.containsKey("output") || ( options.containsKey("verbose") && options.get("verbose") == true ))
+        if (!options.containsKey("output") || ( options.containsKey("verbose") && (boolean) options.get("verbose") ))
             System.out.println(problem);
 
         try {
