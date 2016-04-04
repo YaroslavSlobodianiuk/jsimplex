@@ -214,34 +214,10 @@ public class Main {
 
         input = input.replaceAll("(-?->)?(max|min)", "");
         ArrayList<String> atoms = new ArrayList<>(Arrays.asList(input.split("(?=\\+)|(?=\\-)")));
-        atoms.removeAll(Arrays.asList("", null));
 
-        Pattern p = Pattern.compile("((?:[\\-\\+])?\\d*(?:\\.\\d+)?)?([a-zA-Z]+)?(\\d*)?");
+        HashMap<String, Object> parseResult = parseAtoms(atoms);
 
-        double[] coefs = new double[atoms.size()];
-        Variable[] variables = new Variable[atoms.size()];
-        int coefsCount = 0;
-
-        // TODO avoid duplication
-        for (String atom : atoms) {
-            Matcher m = p.matcher(atom);
-            if (m.find()) {
-                if (m.group(1).equals("") || m.group(1).equals("+"))
-                    coefs[coefsCount] = 1;
-                else if (m.group(1).equals("-"))
-                    coefs[coefsCount] = -1;
-                else
-                    coefs[coefsCount] = Double.parseDouble(m.group(1));
-                if (m.group(3).equals(""))
-                    variables[coefsCount] = new Variable(m.group(2));
-                else
-                    variables[coefsCount] = new Variable(m.group(2), Integer.parseInt(m.group(3)));
-            } else throw new InputException("Неверно введены переменные");
-
-            coefsCount++;
-        }
-
-        return new CostFunction(coefs, variables, shouldBeMinimized);
+        return new CostFunction((double[]) parseResult.get("coefs"), (Variable[]) parseResult.get("vars"), shouldBeMinimized);
     }
 
     private static Limitation stringToLimitation(String input) throws InputException {
@@ -265,11 +241,16 @@ public class Main {
         atoms.removeAll(Arrays.asList("", null));
         double freeTerm = Double.parseDouble(atoms.remove(atoms.size() - 1));
 
-        Pattern p = Pattern.compile("((?:[\\-\\+])?\\d*(?:\\.\\d+)?)?([a-zA-Z]+)?(\\d*)?");
+        HashMap<String, Object> parseResult = parseAtoms(atoms);
 
+        return new Limitation((double[]) parseResult.get("coefs"), (Variable[]) parseResult.get("vars"), sign, freeTerm);
+    }
+
+    private static HashMap<String, Object> parseAtoms(ArrayList<String> atoms) throws InputException {
+        int coefsCount = 0;
+        Pattern p = Pattern.compile("((?:[\\-\\+])?\\d*(?:\\.\\d+)?)?([a-zA-Z]+)?(\\d*)?");
         double[] coefs = new double[atoms.size()];
         Variable[] variables = new Variable[atoms.size()];
-        int coefsCount = 0;
 
         for (String atom : atoms) {
             Matcher m = p.matcher(atom);
@@ -289,7 +270,10 @@ public class Main {
             coefsCount++;
         }
 
-        return new Limitation(coefs, variables, sign, freeTerm);
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("coefs", coefs);
+        result.put("vars", variables);
+        return result;
     }
 
     private static void produceOutput(Answer answer, HashMap options) throws FileNotFoundException {
