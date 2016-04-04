@@ -30,7 +30,7 @@ public class Limitation {
 					string += "+";
 				else
 					string += "-";
-				string += Math.abs(coefs[i]) + "x" + (i+1) + " ";
+				string += Math.abs(coefs[i]) + variables[i].toString() + " ";
 			}
 		}
 		
