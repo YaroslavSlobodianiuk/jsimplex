@@ -40,16 +40,17 @@ public class Main {
         }
 
         Problem problem = createProblem(input);
-        System.out.println(problem);
+        if (!options.containsKey("output") || options.containsKey("verbose"))
+            System.out.println(problem);
 
         try {
             produceOutput(problem.solve(), options);
         } catch (FileNotFoundException e) {
-           System.out.println(e.getMessage());
-           if (options.containsKey("debug") && options.get("debug").equals(true))
-               e.printStackTrace();
-        }  catch (NoSolutionException e) {
-           System.out.println(e.getMessage());
+            System.out.println(e.getMessage());
+            if (options.containsKey("debug") && options.get("debug").equals(true))
+                e.printStackTrace();
+        } catch (NoSolutionException e) {
+            System.out.println(e.getMessage());
         }
     }
 
@@ -221,6 +222,7 @@ public class Main {
         Variable[] variables = new Variable[atoms.size()];
         int coefsCount = 0;
 
+        // TODO avoid duplication
         for (String atom : atoms) {
             Matcher m = p.matcher(atom);
             if (m.find()) {

@@ -83,6 +83,7 @@ public class Problem {
     private Answer createAnswer() {
         Answer answer = new Answer(simplexTable);
 
+        // TODO simplify
         int variableIndex = 1;
         for (Variable v : costFunction.getVariables()) {
             int j = 0;
