@@ -20,6 +20,7 @@ import org.apache.commons.cli.ParseException;
 public class Main {
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
         HashMap options;
 
         try {
@@ -160,7 +161,7 @@ public class Main {
     }
 
     private static Input getUserFileInput(String fileName) throws InputException, FileNotFoundException {
-        Scanner scanner = new Scanner(new File(fileName)).useLocale(new Locale("US"));
+        Scanner scanner = new Scanner(new File(fileName));
 
         String line = scanner.nextLine();
         ArrayList<Limitation> limitations = new ArrayList<>();
@@ -176,7 +177,7 @@ public class Main {
     }
 
     private static Input getUserKeyboardInput() throws InputException {
-        Scanner scanner = new Scanner(System.in).useLocale(new Locale("US"));
+        Scanner scanner = new Scanner(System.in);
 
         String line;
         CostFunction costFunction;
