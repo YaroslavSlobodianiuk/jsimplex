@@ -60,7 +60,7 @@ public class Limitation {
 			break;
 		}
 		
-		string += freeTerm;
+		string += df.format(freeTerm);
 		
 		return string;
 	}
