@@ -7,7 +7,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
+import com.akxcv.jsimplex.exception.NoSolutionException;
 import com.akxcv.jsimplex.exception.InputException;
 import com.akxcv.jsimplex.problem.*;
 import org.apache.commons.cli.Options;
@@ -48,7 +48,7 @@ public class Main {
            System.out.println(e.getMessage());
            if (options.containsKey("debug") && options.get("debug").equals(true))
                e.printStackTrace();
-        }  catch (FunctionNotLimitedException e) {
+        }  catch (NoSolutionException e) {
            System.out.println(e.getMessage());
         }
     }

@@ -24,20 +24,20 @@ public class SimplexTable {
         return table[row][column];
     }
 
-    protected int findCol() {
+    protected int findColWithNegativeElement() {
         for (int i = 1; i < cols(); i++)
             if (table[rows() - 1][i] < 0)
                 return i;
         return 0;
     }
 
-    protected int findResCol(int resRow) {
+    protected int findResCol(int resRow, boolean strict) {
         double r, maxR = 0;
         boolean firstRatio = true;
         int resCol = 0;
 
         for (int i = 1; i < cols(); ++i) {
-            if (table[resRow][i] != 0) {
+            if (strict ? (table[resRow][i] != 0) : (table[resRow][i] < 0) ) {
                 r = table[rows() - 1][i] / table[resRow][i];
                 if ( r <= 0 && (firstRatio || r > maxR) ) {
                     firstRatio = false;
@@ -64,25 +64,6 @@ public class SimplexTable {
                 return i;
         }
         return -1;
-    }
-
-    protected int findResColModifited(int resRow) {
-        double r, maxR = 0;
-        boolean firstRatio = true;
-        int resCol = -1;
-
-        for (int i = 1; i < cols(); ++i) {
-            if (table[resRow][i] < 0) {
-                r = table[rows() - 1][i] / table[resRow][i];
-                if ( (r <= 0) && (firstRatio || r > maxR) ) {
-                    firstRatio = false;
-                    maxR = r;
-                    resCol = i;
-                }
-            }
-        }
-
-        return resCol;
     }
 
     protected void step(int resRow, int resCol) {
@@ -121,11 +102,11 @@ public class SimplexTable {
             for (int j = 0; j < cols(); j++) {
 
                 if (shouldFindResElement) {
-                    int resCol = findCol();
+                    int resCol = findColWithNegativeElement();
                     int resRow = findResRow(resCol);
 
                     if (i == resRow && j == resCol)
-                        string += "\033[4m\033[1m" + getElement(i, j) + "\033[0m";
+                        string += underline(Double.toString(getElement(i, j)));
                     else
                         string += getElement(i, j);
                 } else
@@ -140,12 +121,8 @@ public class SimplexTable {
         return string;
     }
 
-    private boolean isLimited(int column) {
-        for (int i = 0; i < rows(); i++)
-            if (table[i][column] > 0f)
-                return true;
-
-        return false;
+    private String underline(String input) {
+        return "\033[4m\033[1m" + input + "\033[0m";
     }
 
 }

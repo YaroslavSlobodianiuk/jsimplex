@@ -1,7 +1,8 @@
 package com.akxcv.jsimplex;
 
-import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
+import com.akxcv.jsimplex.exception.NoSolutionException;
 import com.akxcv.jsimplex.problem.Problem;
+import com.akxcv.jsimplex.problem.SimplexTable;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -35,19 +36,19 @@ public class MainTest {
         createProblem.setAccessible(true);
 
         dummyInput = new Input(null, null);
-        dummyProblem = new Problem(null, null, null);
+        dummyProblem = new Problem(new SimplexTable(new double[5][5]), null, null);
     }
 
     @Test
-	public void defaultTest() throws IOException, InvocationTargetException, IllegalAccessException, FunctionNotLimitedException {
+	public void defaultTest() throws IOException, InvocationTargetException, IllegalAccessException, NoSolutionException {
         for (File file : getDirectoryFileList("default")) {
             Problem problem = createProblem(getFixturePath("default", file.getName()));
             assertEquals(problem.solve().toString().trim(), getOutput("default", file.getName()).trim());
         }
 	}
 
-    @Test(expected = FunctionNotLimitedException.class)
-    public void exceptionTest() throws FunctionNotLimitedException, InvocationTargetException, IllegalAccessException, IOException {
+    @Test(expected = NoSolutionException.class)
+    public void exceptionTest() throws NoSolutionException, InvocationTargetException, IllegalAccessException, IOException {
         for (File file : getDirectoryFileList("exception")) {
             Problem problem = createProblem(getFixturePath("exception", file.getName()));
             problem.solve();
@@ -55,7 +56,7 @@ public class MainTest {
     }
 
     @Test
-    public void csvTest() throws IOException, InvocationTargetException, IllegalAccessException, FunctionNotLimitedException {
+    public void csvTest() throws IOException, InvocationTargetException, IllegalAccessException, NoSolutionException {
         for (File file : getDirectoryFileList("default")) {
             Problem problem = createProblem(getFixturePath("default", file.getName()));
             assertEquals(problem.solve().toString(false, false, true).trim(), getOutput("csv", file.getName()).trim());
@@ -63,7 +64,7 @@ public class MainTest {
     }
 
     @Test
-    public void integerTest() throws IOException, InvocationTargetException, IllegalAccessException, FunctionNotLimitedException {
+    public void integerTest() throws IOException, InvocationTargetException, IllegalAccessException, NoSolutionException {
         for (File file : getDirectoryFileList("default")) {
             Problem problem = createProblem(getFixturePath("default", file.getName()));
             assertEquals(problem.solve().toString(false, true, false).trim(), getOutput("integer", file.getName()).trim());

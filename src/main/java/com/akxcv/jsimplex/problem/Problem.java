@@ -1,6 +1,6 @@
 package com.akxcv.jsimplex.problem;
 
-import com.akxcv.jsimplex.exception.FunctionNotLimitedException;
+import com.akxcv.jsimplex.exception.NoSolutionException;
 
 /**
  * Created by evgeny on 02.04.16.
@@ -10,72 +10,90 @@ public class Problem {
     private SimplexTable simplexTable;
     private CostFunction costFunction;
     private Limitation[] limitations;
+    private int[] rowId;
+    private int[] colId;
+    private boolean isFirstStepDone;
 
     public Problem(SimplexTable simplexTable, CostFunction costFunction, Limitation[] limitations) {
         this.simplexTable = simplexTable;
         this.costFunction = costFunction;
         this.limitations = limitations;
+        setup();
     }
 
-    public Answer solve() throws FunctionNotLimitedException {
-        int col, resRow, resCol;
-        boolean solved = false, firstStepIsDone = false;
-        int rows = simplexTable.rows();
-        int cols = simplexTable.cols();
-        int[] rowId = new int[rows - 1];
-        int[] colId = new int[cols - 1];
+    private void setup() {
+        this.rowId = new int[simplexTable.rows() - 1];
+        this.colId = new int[simplexTable.cols() - 1];
+        this.isFirstStepDone = false;
+    }
 
-        for (int i = 0; i < cols - 1; ++i) { colId[i] = i + 1; }
-        for (int i = 0; i < rows - 1; ++i) { rowId[i] = i + cols; }
+    public Answer solve() throws NoSolutionException {
+        boolean solved = false;
+
+        for (int i = 0; i < simplexTable.cols() - 1; ++i) { colId[i] = i + 1; }
+        for (int i = 0; i < simplexTable.rows() - 1; ++i) { rowId[i] = i + simplexTable.cols(); }
 
         while (!solved) {
-            if(!firstStepIsDone) {
-                col = simplexTable.findCol();
-                if (col == 0) {
-                    firstStepIsDone = true;
-                } else {
-                    resRow = simplexTable.findResRow(col);
-                    if (resRow == -1) {
-                        throw new FunctionNotLimitedException("Решений нет");
-                    } else {
-                        resCol = simplexTable.findResCol(resRow);
-                        rowId[resRow] += colId[resCol - 1];
-                        colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
-                        rowId[resRow] -= colId[resCol - 1];
-                        simplexTable.step(resRow, resCol);
-                    }
-                }
+            if(!isFirstStepDone) {
+                solveFirstStep();
             } else {
-                resRow = simplexTable.findResRow();
-                if (resRow == -1) {
-                    solved = true;
-                } else {
-                    resCol = simplexTable.findResColModifited(resRow);
-                    if (resCol == -1) {
-                        throw new FunctionNotLimitedException("Решений нет");
-                    } else {
-                        rowId[resRow] += colId[resCol - 1];
-                        colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
-                        rowId[resRow] -= colId[resCol - 1];
-                        simplexTable.step(resRow, resCol);
-                    }
-                }
+                solved = solveLastStep();
             }
         }
 
+        return createAnswer();
+    }
+
+    private void solveFirstStep() throws NoSolutionException {
+        int col = simplexTable.findColWithNegativeElement();
+        if (col == 0) {
+            isFirstStepDone = true;
+        } else {
+            int resRow = simplexTable.findResRow(col);
+            if (resRow == -1) {
+                throw new NoSolutionException("Решения нет");
+            } else {
+                int resCol = simplexTable.findResCol(resRow, true);
+                rowId[resRow] += colId[resCol - 1];
+                colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
+                rowId[resRow] -= colId[resCol - 1];
+                simplexTable.step(resRow, resCol);
+            }
+        }
+    }
+
+    private boolean solveLastStep() throws NoSolutionException {
+        int resRow = simplexTable.findResRow();
+        if (resRow == -1) {
+            return true;
+        } else {
+            int resCol = simplexTable.findResCol(resRow, false);
+            if (resCol == -1) {
+                throw new NoSolutionException("Решения нет");
+            } else {
+                rowId[resRow] += colId[resCol - 1];
+                colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
+                rowId[resRow] -= colId[resCol - 1];
+                simplexTable.step(resRow, resCol);
+            }
+        }
+        return false;
+    }
+
+    private Answer createAnswer() {
         Answer answer = new Answer(simplexTable);
 
-        for (int i = 1; i < cols; i++) {
+        for (int i = 1; i < simplexTable.cols(); i++) {
             int j = 0;
-            for (; j < rows - 1 && rowId[j] != i; j++);
-            if (j == rows - 1)
+            for (; j < simplexTable.rows() - 1 && rowId[j] != i; j++);
+            if (j == simplexTable.rows() - 1)
                 answer.addItem("x" + i, 0);
             else
                 answer.addItem("x" + i, simplexTable.getElement(j, 0));
         }
 
         String optimizationDirection = costFunction.shouldBeMinimized() ? "min" : "max";
-        double costFunctionValue = (costFunction.shouldBeMinimized() ? -1 : 1) * simplexTable.getElement(rows - 1, 0);
+        double costFunctionValue = (costFunction.shouldBeMinimized() ? -1 : 1) * simplexTable.getElement(simplexTable.rows() - 1, 0);
         answer.addItem(optimizationDirection + "{ F(x) }", costFunctionValue);
 
         return answer;
