@@ -25,4 +25,22 @@ public class Variable {
         return index;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Variable variable = (Variable) o;
+
+        if (index != variable.index) return false;
+        return letter.equals(variable.letter);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = letter.hashCode();
+        result = 31 * result + index;
+        return result;
+    }
 }

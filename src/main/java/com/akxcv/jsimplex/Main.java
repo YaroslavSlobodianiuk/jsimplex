@@ -41,47 +41,68 @@ public class Main {
 
         Problem problem = createProblem(input);
         System.out.println(problem);
+        System.out.println(problem.simplexTable);
 
-//        try {
-//            produceOutput(problem.solve(), options);
-//        } catch (FileNotFoundException e) {
-//           System.out.println(e.getMessage());
-//           if (options.containsKey("debug") && options.get("debug").equals(true))
-//               e.printStackTrace();
-//        }  catch (NoSolutionException e) {
-//           System.out.println(e.getMessage());
-//        }
+        try {
+            produceOutput(problem.solve(), options);
+        } catch (FileNotFoundException e) {
+           System.out.println(e.getMessage());
+           if (options.containsKey("debug") && options.get("debug").equals(true))
+               e.printStackTrace();
+        }  catch (NoSolutionException e) {
+           System.out.println(e.getMessage());
+        }
     }
 
     private static Problem createProblem(Input input) {
+        LinkedHashSet<Variable> variables = mergeVariables(input);
         int rows = input.getLimitationCount() + 1;
-        int cols = input.getCostFunction().getCoefCount() + 1;
+        int cols = variables.size() + 1;
         double [][] table = new double[rows][cols];
 
         table[rows - 1][0] = 0;
-        for (int i = 1; i < cols; ++i) {
+
+        int limitationIndex = 0, variableIndex = 0;
+        for (Variable v : variables) {
             if (input.getCostFunction().shouldBeMinimized())
-                table[rows - 1][i] = input.getCostFunction().getCoef(i - 1);
+                table[rows - 1][variableIndex + 1] = input.getCostFunction().getCoef(v);
             else
-                table[rows - 1][i] = -input.getCostFunction().getCoef(i - 1);
+                table[rows - 1][variableIndex + 1] = -input.getCostFunction().getCoef(v);
+            variableIndex++;
         }
 
-        for (int i = 0; i < rows - 1; ++i) {
-            for (int j = 1; j < cols; ++j)
-                if (input.getLimitations()[i].getSign() == Limitation.LimitationSign.GE)
-                    table[i][j] = -input.getLimitations()[i].getCoef(j - 1);
+        for (Limitation l : input.getLimitations()) {
+            variableIndex = 1;
+            for (Variable v : variables) {
+                if (l.getSign() == Limitation.LimitationSign.GE)
+                    table[limitationIndex][variableIndex] = -input.getLimitation(limitationIndex).getCoef(v);
                 else
-                    table[i][j] = input.getLimitations()[i].getCoef(j - 1);
+                    table[limitationIndex][variableIndex] = input.getLimitation(limitationIndex).getCoef(v);
+                variableIndex++;
+            }
+            limitationIndex++;
         }
 
-        for (int i = 0; i < rows - 1; ++i) {
-            if (input.getLimitations()[i].getSign() == Limitation.LimitationSign.GE)
-                table[i][0] = -input.getLimitations()[i].getFreeTerm();
+        limitationIndex = 0;
+        for (Limitation l : input.getLimitations()) {
+            if (l.getSign() == Limitation.LimitationSign.GE)
+                table[limitationIndex][0] = -l.getFreeTerm();
             else
-                table[i][0] = input.getLimitations()[i].getFreeTerm();
+                table[limitationIndex][0] = l.getFreeTerm();
+            limitationIndex++;
         }
 
         return new Problem(new SimplexTable(table), input.getCostFunction(), input.getLimitations());
+    }
+
+    private static LinkedHashSet<Variable> mergeVariables(Input input) {
+        LinkedHashSet<Variable> variables = new LinkedHashSet<>(Arrays.asList(input.getCostFunction().getVariables()));
+
+        for (Limitation l : input.getLimitations())
+            for (Variable v : l.getVariables())
+                variables.add(v);
+
+        return variables;
     }
 	
 	private static HashMap<String, Object> parseCommandLine(String[] args) throws ParseException {
@@ -195,7 +216,7 @@ public class Main {
         ArrayList<String> atoms = new ArrayList<>(Arrays.asList(input.split("(?=\\+)|(?=\\-)")));
         atoms.removeAll(Arrays.asList("", null));
 
-        Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)([a-zA-Z]+)(\\d*)");
+        Pattern p = Pattern.compile("((?:[\\-\\+])?\\d*(?:\\.\\d+)?)?([a-zA-Z]+)?(\\d*)?");
 
         double[] coefs = new double[atoms.size()];
         Variable[] variables = new Variable[atoms.size()];
@@ -204,8 +225,16 @@ public class Main {
         for (String atom : atoms) {
             Matcher m = p.matcher(atom);
             if (m.find()) {
-                coefs[coefsCount] = Double.parseDouble(m.group(0));
-                variables[coefsCount] = new Variable(m.group(1), Integer.parseInt(m.group(2)));
+                if (m.group(1).equals("") || m.group(1).equals("+"))
+                    coefs[coefsCount] = 1;
+                else if (m.group(1).equals("-"))
+                    coefs[coefsCount] = -1;
+                else
+                    coefs[coefsCount] = Double.parseDouble(m.group(1));
+                if (m.group(3).equals(""))
+                    variables[coefsCount] = new Variable(m.group(2), 0);
+                else
+                    variables[coefsCount] = new Variable(m.group(2), Integer.parseInt(m.group(3)));
             } else throw new InputException("Неверно введены переменные");
 
             coefsCount++;
@@ -231,29 +260,35 @@ public class Main {
 
         input = input.replaceAll("\\s|<|>", "");
 
-        ArrayList<String> atomsList = new ArrayList<>(Arrays.asList(input.split("=|(?=\\+)|(?=\\-)")));
-        atomsList.removeAll(Arrays.asList("", null));
-        String[] atoms = atomsList.toArray(new String[0]);
+        ArrayList<String> atoms = new ArrayList<>(Arrays.asList(input.split("=|(?=\\+)|(?=\\-)")));
+        atoms.removeAll(Arrays.asList("", null));
+        double freeTerm = Double.parseDouble(atoms.remove(atoms.size() - 1));
 
-        Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
+        Pattern p = Pattern.compile("((?:[\\-\\+])?\\d*(?:\\.\\d+)?)?([a-zA-Z]+)?(\\d*)?");
 
-        double[] coefs = new double[atoms.length - 1];
+        double[] coefs = new double[atoms.size()];
+        Variable[] variables = new Variable[atoms.size()];
         int coefsCount = 0;
-        double freeTerm = 0d;
 
         for (String atom : atoms) {
             Matcher m = p.matcher(atom);
-            if (coefsCount != atoms.length - 1) {
-                if (m.find())
-                    coefs[coefsCount] = Double.parseDouble(m.group(0));
-                coefsCount++;
-            } else {
-                if (m.find())
-                    freeTerm = Double.parseDouble(m.group(0));
-            }
+            if (m.find()) {
+                if (m.group(1).equals("") || m.group(1).equals("+"))
+                    coefs[coefsCount] = 1;
+                else if (m.group(1).equals("-"))
+                    coefs[coefsCount] = -1;
+                else
+                    coefs[coefsCount] = Double.parseDouble(m.group(1));
+                if (m.group(3).equals(""))
+                    variables[coefsCount] = new Variable(m.group(2), 0);
+                else
+                    variables[coefsCount] = new Variable(m.group(2), Integer.parseInt(m.group(3)));
+            } else throw new InputException("Неверно введены переменные");
+
+            coefsCount++;
         }
 
-        return new Limitation(coefs, sign, freeTerm);
+        return new Limitation(coefs, variables, sign, freeTerm);
     }
 
     private static void produceOutput(Answer answer, HashMap options) throws FileNotFoundException {

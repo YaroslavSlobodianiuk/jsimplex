@@ -25,6 +25,10 @@ class Input {
         return limitations;
     }
 
+    public Limitation getLimitation(int index) {
+        return limitations[index];
+    }
+
     public int getLimitationCount() {
         return limitations.length;
     }

@@ -7,7 +7,7 @@ import com.akxcv.jsimplex.exception.NoSolutionException;
  */
 public class Problem {
 
-    private SimplexTable simplexTable;
+    public SimplexTable simplexTable;
     private CostFunction costFunction;
     private Limitation[] limitations;
     private int[] rowId;

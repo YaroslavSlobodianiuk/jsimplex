@@ -43,7 +43,7 @@ public class MainTest {
 	public void defaultTest() throws IOException, InvocationTargetException, IllegalAccessException, NoSolutionException {
         for (File file : getDirectoryFileList("default")) {
             Problem problem = createProblem(getFixturePath("default", file.getName()));
-            assertEquals(problem.solve().toString().trim(), getOutput("default", file.getName()).trim());
+            assertEquals(getOutput("default", file.getName()).trim(), problem.solve().toString().trim());
         }
 	}
 

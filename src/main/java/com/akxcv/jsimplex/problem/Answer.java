@@ -1,5 +1,6 @@
 package com.akxcv.jsimplex.problem;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
@@ -21,6 +22,7 @@ public class Answer {
         String prefix = "";
         String string = "";
 
+
         if (verbose) {
             int step = 1;
             for (SimplexTable state: simplexTable.getStateList()) {
@@ -35,7 +37,8 @@ public class Answer {
             if (integer)
                 string += (int) Math.floor(item.getValue());
             else
-                string += String.format("%." + 5 + "f", item.getValue());
+                string += Math.round(item.getValue() * 10000.0) / 10000.0;
+
         }
 
         return prefix + string.substring(1);
