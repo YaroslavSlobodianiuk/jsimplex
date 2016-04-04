@@ -1,6 +1,7 @@
 package com.akxcv.jsimplex.problem;
 
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -23,6 +24,10 @@ public class Answer {
         String prefix = "";
         String string = "";
 
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        DecimalFormat df = (DecimalFormat)nf;
+        df.applyPattern("0.####");
+
         if (verbose) {
             int step = 1;
             for (SimplexTable state: simplexTable.getStateList()) {
@@ -37,7 +42,7 @@ public class Answer {
             if (integer)
                 string += (int) Math.floor(item.getValue());
             else
-                string += new DecimalFormat("0.####").format(item.getValue());
+                string += df.format(item.getValue());
         }
 
         return prefix + string.substring(1);
