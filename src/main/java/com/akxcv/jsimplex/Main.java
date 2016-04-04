@@ -42,15 +42,15 @@ public class Main {
         Problem problem = createProblem(input);
         System.out.println(problem);
 
-        try {
-            produceOutput(problem.solve(), options);
-        } catch (FileNotFoundException e) {
-           System.out.println(e.getMessage());
-           if (options.containsKey("debug") && options.get("debug").equals(true))
-               e.printStackTrace();
-        }  catch (NoSolutionException e) {
-           System.out.println(e.getMessage());
-        }
+//        try {
+//            produceOutput(problem.solve(), options);
+//        } catch (FileNotFoundException e) {
+//           System.out.println(e.getMessage());
+//           if (options.containsKey("debug") && options.get("debug").equals(true))
+//               e.printStackTrace();
+//        }  catch (NoSolutionException e) {
+//           System.out.println(e.getMessage());
+//        }
     }
 
     private static Problem createProblem(Input input) {
@@ -182,50 +182,56 @@ public class Main {
         return new Input(costFunction, limitations.toArray(new Limitation[0]));
     }
 
-    private static CostFunction stringToCostFunction(String string) throws InputException {
-        string = string.replaceAll("\\s", "");
+    private static CostFunction stringToCostFunction(String input) throws InputException {
+        input = input.replaceAll("\\s", "");
 
-        if (!string.contains("->") || !(string.contains("min") || string.contains("max")))
+        if (!input.contains("min") && !input.contains("max"))
             throw new InputException("Не задано направление оптимизации");
+        if (input.contains("min") && input.contains("max"))
+            throw new InputException("Задано несколько направлений оптимизации");
+        boolean shouldBeMinimized = input.contains("min");
 
-        ArrayList<String> atomsList = new ArrayList<>(Arrays.asList(string.split("\\-\\->|\\->|(?=\\+)|(?=\\-)")));
-        atomsList.removeAll(Arrays.asList("", null));
-        String[] atoms = atomsList.toArray(new String[0]);
+        input = input.replaceAll("(-?->)?(max|min)", "");
+        ArrayList<String> atoms = new ArrayList<>(Arrays.asList(input.split("(?=\\+)|(?=\\-)")));
+        atoms.removeAll(Arrays.asList("", null));
 
-        Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)");
+        Pattern p = Pattern.compile("((?:\\-)?\\d+(?:\\.\\d+)?)([a-zA-Z]+)(\\d*)");
 
-        double[] coefs = new double[atoms.length - 1];
+        double[] coefs = new double[atoms.size()];
+        Variable[] variables = new Variable[atoms.size()];
         int coefsCount = 0;
 
         for (String atom : atoms) {
             Matcher m = p.matcher(atom);
-            if (m.find())
+            if (m.find()) {
                 coefs[coefsCount] = Double.parseDouble(m.group(0));
+                variables[coefsCount] = new Variable(m.group(1), Integer.parseInt(m.group(2)));
+            } else throw new InputException("Неверно введены переменные");
 
             coefsCount++;
         }
 
-        return new CostFunction(coefs, atoms[coefsCount - 1].equals("min"));
+        return new CostFunction(coefs, variables, shouldBeMinimized);
     }
 
-    private static Limitation stringToLimitation(String string) throws InputException {
+    private static Limitation stringToLimitation(String input) throws InputException {
         Limitation.LimitationSign sign;
 
-        if (string.contains("<=")) {
-            if (string.contains(">="))
+        if (input.contains("<=")) {
+            if (input.contains(">="))
                 throw new InputException("Неверный знак ограничения");
             sign = Limitation.LimitationSign.LE;
-        } else if (string.contains(">=")) {
+        } else if (input.contains(">=")) {
             sign = Limitation.LimitationSign.GE;
         } else
             sign = Limitation.LimitationSign.EQ;
 
-        if (!string.contains("="))
+        if (!input.contains("="))
             throw new InputException("Не указан знак ограничения");
 
-        string = string.replaceAll("\\s|<|>", "");
+        input = input.replaceAll("\\s|<|>", "");
 
-        ArrayList<String> atomsList = new ArrayList<>(Arrays.asList(string.split("=|(?=\\+)|(?=\\-)")));
+        ArrayList<String> atomsList = new ArrayList<>(Arrays.asList(input.split("=|(?=\\+)|(?=\\-)")));
         atomsList.removeAll(Arrays.asList("", null));
         String[] atoms = atomsList.toArray(new String[0]);
 
