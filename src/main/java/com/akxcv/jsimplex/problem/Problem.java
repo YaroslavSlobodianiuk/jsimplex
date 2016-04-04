@@ -7,7 +7,7 @@ import com.akxcv.jsimplex.exception.NoSolutionException;
  */
 public class Problem {
 
-    public SimplexTable simplexTable;
+    private SimplexTable simplexTable;
     private CostFunction costFunction;
     private Limitation[] limitations;
     private int[] rowId;
@@ -83,18 +83,20 @@ public class Problem {
     private Answer createAnswer() {
         Answer answer = new Answer(simplexTable);
 
-        for (int i = 1; i < simplexTable.cols(); i++) {
+        int variableIndex = 1;
+        for (Variable v : costFunction.getVariables()) {
             int j = 0;
-            for (; j < simplexTable.rows() - 1 && rowId[j] != i; j++);
+            for (; j < simplexTable.rows() - 1 && rowId[j] != variableIndex; j++);
             if (j == simplexTable.rows() - 1)
-                answer.addItem("x" + i, 0);
+                answer.addItem(v.toString(), 0);
             else
-                answer.addItem("x" + i, simplexTable.getElement(j, 0));
+                answer.addItem(v.toString(), simplexTable.getElement(j, 0));
+            variableIndex++;
         }
 
         String optimizationDirection = costFunction.shouldBeMinimized() ? "min" : "max";
         double costFunctionValue = (costFunction.shouldBeMinimized() ? -1 : 1) * simplexTable.getElement(simplexTable.rows() - 1, 0);
-        answer.addItem(optimizationDirection + "{ F(x) }", costFunctionValue);
+        answer.addItem(optimizationDirection + " F", costFunctionValue);
 
         return answer;
     }

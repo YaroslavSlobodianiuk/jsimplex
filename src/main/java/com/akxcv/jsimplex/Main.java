@@ -41,7 +41,6 @@ public class Main {
 
         Problem problem = createProblem(input);
         System.out.println(problem);
-        System.out.println(problem.simplexTable);
 
         try {
             produceOutput(problem.solve(), options);
@@ -232,7 +231,7 @@ public class Main {
                 else
                     coefs[coefsCount] = Double.parseDouble(m.group(1));
                 if (m.group(3).equals(""))
-                    variables[coefsCount] = new Variable(m.group(2), 0);
+                    variables[coefsCount] = new Variable(m.group(2));
                 else
                     variables[coefsCount] = new Variable(m.group(2), Integer.parseInt(m.group(3)));
             } else throw new InputException("Неверно введены переменные");
@@ -280,7 +279,7 @@ public class Main {
                 else
                     coefs[coefsCount] = Double.parseDouble(m.group(1));
                 if (m.group(3).equals(""))
-                    variables[coefsCount] = new Variable(m.group(2), 0);
+                    variables[coefsCount] = new Variable(m.group(2));
                 else
                     variables[coefsCount] = new Variable(m.group(2), Integer.parseInt(m.group(3)));
             } else throw new InputException("Неверно введены переменные");

@@ -13,8 +13,13 @@ public class Variable {
         this.index = index;
     }
 
+    public Variable(String letter) {
+        this.letter = letter;
+        this.index = -1;
+    }
+
     public String toString() {
-        return letter + index;
+        return letter + (index < 0 ? "" : index);
     }
 
     public String getLetter() {

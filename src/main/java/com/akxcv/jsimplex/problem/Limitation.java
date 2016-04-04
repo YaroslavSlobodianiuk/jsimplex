@@ -67,6 +67,10 @@ public class Limitation {
             return coefs[variableList.indexOf(variable)];
         return 0;
     }
+
+    public double[] getCoefs() {
+        return coefs;
+    }
 	
 	public int getCoefCount() {
 		return coefs.length;

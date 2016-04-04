@@ -54,6 +54,10 @@ public class CostFunction {
         return variables;
     }
 
+    public boolean hasVariable(Variable variable) {
+        return Arrays.asList(variables).contains(variable);
+    }
+
 	public boolean shouldBeMinimized() {return minimize;}
 	
 }

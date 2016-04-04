@@ -59,7 +59,7 @@ public class MainTest {
     public void csvTest() throws IOException, InvocationTargetException, IllegalAccessException, NoSolutionException {
         for (File file : getDirectoryFileList("default")) {
             Problem problem = createProblem(getFixturePath("default", file.getName()));
-            assertEquals(problem.solve().toString(false, false, true).trim(), getOutput("csv", file.getName()).trim());
+            assertEquals(getOutput("csv", file.getName()).trim(), problem.solve().toString(false, false, true).trim());
         }
     }
 
@@ -67,7 +67,7 @@ public class MainTest {
     public void integerTest() throws IOException, InvocationTargetException, IllegalAccessException, NoSolutionException {
         for (File file : getDirectoryFileList("default")) {
             Problem problem = createProblem(getFixturePath("default", file.getName()));
-            assertEquals(problem.solve().toString(false, true, false).trim(), getOutput("integer", file.getName()).trim());
+            assertEquals(getOutput("integer", file.getName()).trim(), problem.solve().toString(false, true, false).trim());
         }
     }
 
