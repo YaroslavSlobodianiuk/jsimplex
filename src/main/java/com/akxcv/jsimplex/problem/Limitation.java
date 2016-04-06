@@ -1,7 +1,10 @@
 package com.akxcv.jsimplex.problem;
 
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 public class Limitation {
 
@@ -21,8 +24,13 @@ public class Limitation {
 	
 	public String toString() {
         String string = "";
+
+        NumberFormat nf = NumberFormat.getNumberInstance(Locale.US);
+        DecimalFormat df = (DecimalFormat)nf;
+        df.applyPattern("0.####");
+
         if (coefs[0] != 0)
-            string += coefs[0] + variables[0].toString() + " ";
+            string += df.format(coefs[0]) + variables[0] + " ";
 		
 		for (int i = 1; i < coefs.length; i++) {
 			if (coefs[i] != 0) {
@@ -30,7 +38,7 @@ public class Limitation {
 					string += "+";
 				else
 					string += "-";
-				string += Math.abs(coefs[i]) + variables[i].toString() + " ";
+				string += df.format(Math.abs(coefs[i])) + variables[i] + " ";
 			}
 		}
 		
@@ -52,7 +60,7 @@ public class Limitation {
 			break;
 		}
 		
-		string += freeTerm;
+		string += df.format(freeTerm);
 		
 		return string;
 	}

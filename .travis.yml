@@ -6,3 +6,7 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+os:
+  - linux
+  - osx
