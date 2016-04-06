@@ -201,6 +201,8 @@ public class Main {
             limitations.add(stringToLimitation(line));
         }
 
+        System.out.println();
+
         return new Input(costFunction, limitations.toArray(new Limitation[0]));
     }
 
