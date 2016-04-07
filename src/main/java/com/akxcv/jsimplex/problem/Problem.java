@@ -27,6 +27,12 @@ public class Problem {
         this.isFirstStepDone = false;
     }
 
+    void swapRowAndColId(int resRow, int resCol) {
+        rowId[resRow] += colId[resCol - 1];
+        colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
+        rowId[resRow] -= colId[resCol - 1];
+    }
+
     public Answer solve() throws NoSolutionException {
         boolean solved = false;
 
@@ -54,9 +60,7 @@ public class Problem {
                 throw new NoSolutionException("Решения нет");
             } else {
                 int resCol = simplexTable.findResCol(resRow, true);
-                rowId[resRow] += colId[resCol - 1];
-                colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
-                rowId[resRow] -= colId[resCol - 1];
+                swapRowAndColId(resRow, resCol);
                 simplexTable.step(resRow, resCol);
             }
         }
@@ -71,9 +75,7 @@ public class Problem {
             if (resCol == -1) {
                 throw new NoSolutionException("Решения нет");
             } else {
-                rowId[resRow] += colId[resCol - 1];
-                colId[resCol - 1] = rowId[resRow] - colId[resCol - 1];
-                rowId[resRow] -= colId[resCol - 1];
+                swapRowAndColId(resRow, resCol);
                 simplexTable.step(resRow, resCol);
             }
         }
