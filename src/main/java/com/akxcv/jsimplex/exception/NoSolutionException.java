@@ -6,7 +6,7 @@ package com.akxcv.jsimplex.exception;
 public class NoSolutionException extends Exception {
 
     public NoSolutionException() {
-        this("Функция не ограничена");
+        this("Cost function is not limited");
     }
 
     public NoSolutionException(String message) {

@@ -57,7 +57,7 @@ public class Problem {
         } else {
             int resRow = simplexTable.findResRow(col);
             if (resRow == -1) {
-                throw new NoSolutionException("Решения нет");
+                throw new NoSolutionException("No solution");
             } else {
                 int resCol = simplexTable.findResCol(resRow, true);
                 swapRowAndColId(resRow, resCol);
@@ -73,7 +73,7 @@ public class Problem {
         } else {
             int resCol = simplexTable.findResCol(resRow, false);
             if (resCol == -1) {
-                throw new NoSolutionException("Решения нет");
+                throw new NoSolutionException("No solution");
             } else {
                 swapRowAndColId(resRow, resCol);
                 simplexTable.step(resRow, resCol);

@@ -111,33 +111,33 @@ public class Main {
 		Options options = new Options();
 		options.addOption( OptionBuilder.withLongOpt("input")
 										.hasArg()
-										.withDescription("входной файл")
+										.withDescription("input file")
 										.create("i") );
 		options.addOption( OptionBuilder.withLongOpt("output")
 										.hasArg()
-										.withDescription("выходной файл")
+										.withDescription("output file")
 										.create("o") );
         options.addOption( OptionBuilder.withLongOpt("verbose")
-                                        .withDescription("вербальный режим")
+                                        .withDescription("verbose mode")
                                         .create("v") );
         options.addOption( OptionBuilder.withLongOpt("integer")
-                                        .withDescription("округление ответа до целых чисел")
+                                        .withDescription("round to integers")
                                         .create() );
         options.addOption( OptionBuilder.withLongOpt("csv")
-                                        .withDescription("запись в csv-файл")
+                                        .withDescription("write output as csv")
                                         .create("c") );
         options.addOption( OptionBuilder.withLongOpt("debug")
-                                        .withDescription("режим отладки")
+                                        .withDescription("debug mode")
                                         .create("d") );
 
 		CommandLine line = parser.parse(options, args);
 		HashMap<String, Object>  optionHash = new HashMap<>();
 
         if (line.hasOption("csv") && !line.hasOption("output"))
-            throw new ParseException("Опция -o (--output) обязательна при использовании опции -c (--csv)!");
+            throw new ParseException("-o (output file) option is required when using -c!");
 
         if (line.hasOption("min") && line.hasOption("max"))
-            throw new ParseException("Опции --max и --min несовместимы!");
+            throw new ParseException("--max and --min options are incompatible!");
 		
 		if (line.hasOption("input"))
 			optionHash.put("input", line.getOptionValue("input"));
@@ -183,18 +183,18 @@ public class Main {
         CostFunction costFunction;
         ArrayList<Limitation> limitations = new ArrayList<>();
 
-        System.out.println("Введите условие задачи. Для окончания ввода нажмите Enter в пустой строке.");
-        System.out.print("Целевая функция: ");
+        System.out.println("Enter the problem. To submit, press Return on an empty row.");
+        System.out.print("Cost function: ");
         line = scanner.nextLine();
 
         if (line.isEmpty()) {
-            throw new InputException("Пустой ввод");
+            throw new InputException("Input is empty");
         }
 
         costFunction = stringToCostFunction(line);
 
         while(true) {
-            System.out.print("Ограничение: ");
+            System.out.print("Limitation: ");
             line = scanner.nextLine();
             if (line.isEmpty())
                 break;
@@ -210,9 +210,9 @@ public class Main {
         input = input.replaceAll("\\s", "");
 
         if (!input.contains("min") && !input.contains("max"))
-            throw new InputException("Не задано направление оптимизации");
+            throw new InputException("Optimization direction is not specified");
         if (input.contains("min") && input.contains("max"))
-            throw new InputException("Задано несколько направлений оптимизации");
+            throw new InputException("Multiple optimization directions are specified");
         boolean shouldBeMinimized = input.contains("min");
 
         input = input.replaceAll("(-?->)?(max|min)", "");
@@ -228,7 +228,7 @@ public class Main {
 
         if (input.contains("<=")) {
             if (input.contains(">="))
-                throw new InputException("Неверный знак ограничения");
+                throw new InputException("Incorrect limitation sign");
             sign = Limitation.LimitationSign.LE;
         } else if (input.contains(">=")) {
             sign = Limitation.LimitationSign.GE;
@@ -236,7 +236,7 @@ public class Main {
             sign = Limitation.LimitationSign.EQ;
 
         if (!input.contains("="))
-            throw new InputException("Не указан знак ограничения");
+            throw new InputException("Limitation sign is not specified");
 
         input = input.replaceAll("\\s|<|>", "");
 
@@ -268,7 +268,7 @@ public class Main {
                     variables[coefsCount] = new Variable(m.group(2));
                 else
                     variables[coefsCount] = new Variable(m.group(2), Integer.parseInt(m.group(3)));
-            } else throw new InputException("Неверно введены переменные");
+            } else throw new InputException("Variables are supplied incorrectly");
 
             coefsCount++;
         }

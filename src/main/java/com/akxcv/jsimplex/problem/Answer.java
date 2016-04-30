@@ -31,7 +31,7 @@ public class Answer {
         if (verbose) {
             int step = 1;
             for (SimplexTable state: simplexTable.getStateList()) {
-                prefix += "Шаг " + step + "\n";
+                prefix += "Step " + step + "\n";
                 prefix += state + "\n";
                 step++;
             }
